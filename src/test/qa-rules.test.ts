@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { needsNudge } from "@/lib/qa/nudge";
-import { cleanModelOutput, neutralizeStyle, STYLE_MASK_TIMEOUT_MS } from "@/lib/qa/style-mask";
+import { cleanModelOutput, neutralizeStyle, resolveSovereignEndpoint, REWRITE_RATE, STYLE_MASK_SYSTEM_PROMPT } from "@/lib/qa/style-mask";
 import { nextDiceIndex, promptHeadline, resolvePromptKey, storedPromptLabel } from "@/lib/qa/prompts";
 import { activeStories, hasUnseen, QA_STORY_HOURS, type QaAnswer } from "@/lib/qa/story";
 import { QUESTION_RATE } from "@/lib/questions-rules";
@@ -34,13 +34,31 @@ describe("ghost mode (stylometry masking)", () => {
   it("expands chat shorthand", () => {
     expect(neutralizeStyle("idk wss morgen")).toBe("Ik weet het niet waarschijnlijk morgen.");
   });
-  it("gives the model at most 2 seconds", () => {
-    expect(STYLE_MASK_TIMEOUT_MS).toBe(2000);
+  it("allows at most 3 magic-wand rewrites per minute per IP", () => {
+    expect(REWRITE_RATE).toEqual({ limit: 3, windowSec: 60 });
+  });
+  it("asks for neutral Standard Dutch and nothing but the rewritten text", () => {
+    expect(STYLE_MASK_SYSTEM_PROMPT).toContain("Standaardnederlands");
+    expect(STYLE_MASK_SYSTEM_PROMPT).toContain("Antwoord uitsluitend met de herschreven tekst, geen uitleg.");
+  });
+  it("builds the Swiss Infomaniak endpoint from the product id", () => {
+    const e = resolveSovereignEndpoint({ productId: "105139" });
+    expect(e?.url).toBe("https://api.infomaniak.com/2/ai/105139/openai/v1/chat/completions");
+    expect(e?.infomaniak).toBe(true);
+  });
+  it("accepts any custom https endpoint and model, never plain http", () => {
+    const e = resolveSovereignEndpoint({ baseUrl: "https://llm.example.eu/v1/", model: "mixtral", productId: "1" });
+    expect(e?.url).toBe("https://llm.example.eu/v1/chat/completions");
+    expect(e?.models).toEqual(["mixtral"]);
+    expect(e?.infomaniak).toBe(false);
+    expect(resolveSovereignEndpoint({ baseUrl: "http://llm.example.eu/v1" })).toBeNull();
+    expect(resolveSovereignEndpoint({ productId: "abc" })).toBeNull();
   });
   it("strips quotes and labels from model output and enforces the length", () => {
     expect(cleanModelOutput('"Herschreven tekst: Hallo daar."', 300)).toBe("Hallo daar.");
     expect(cleanModelOutput("x".repeat(400), 300)).toHaveLength(300);
     expect(cleanModelOutput("", 300)).toBeNull();
+    expect(cleanModelOutput("<think>plan</think> Hallo.", 300)).toBe("Hallo.");
   });
 });
 
