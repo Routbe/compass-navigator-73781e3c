@@ -117,5 +117,7 @@
   "pages.qa.mutes.since": "Stummgeschaltet am {{date}}",
   "pages.qa.mutes.noMessage": "Nachricht nicht mehr verfügbar",
   "pages.qa.mutes.lift": "Aufheben",
-  "pages.qa.mutes.lifted": "Stummschaltung aufgehoben. Neue Nachrichten dieses Absenders kommen wieder an."
+  "pages.qa.mutes.lifted": "Stummschaltung aufgehoben. Neue Nachrichten dieses Absenders kommen wieder an.",
+  "pages.qa.loadFailed": "Laden fehlgeschlagen.",
+  "pages.qa.retry": "Erneut versuchen"
 }
