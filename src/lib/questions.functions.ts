@@ -55,8 +55,9 @@ async function senderDeviceKey(): Promise<string> {
 
 /**
  * Public send. Muted or shadow-banned senders get the same "ok" as everybody:
- * the database quarantines their message silently. Ghost Mode rewrites the
- * text before it is stored, so the original wording is never saved.
+ * the database quarantines their message silently. Ghost Mode happens before
+ * sending (magic wand → /api/ai/rewrite), so the sender approves the exact
+ * text that is stored; `ghost` only labels a message that came from the wand.
  */
 export const askAnonymousQuestion = createServerFn({ method: "POST" })
   .middleware([optionalAuth])
@@ -74,13 +75,8 @@ export const askAnonymousQuestion = createServerFn({ method: "POST" })
     const hour = minute.ok ? await hitRateLimit("question-ask-hour", ip, QUESTION_RATE_HOURLY) : minute;
     if (!minute.ok || !hour.ok) return { result: "too_many" as const, masked: false };
     const { normalizeText } = await import("./questions-rules");
-    let body = normalizeText(data.body, QUESTION_MAX);
+    const body = normalizeText(data.body, QUESTION_MAX);
     if (!body) return { result: "invalid" as const, masked: false };
-    if (data.ghost) {
-      const { maskWritingStyle } = await import("./qa/style-mask.server");
-      body = (await maskWritingStyle(body)).text;
-      if (!body) return { result: "invalid" as const, masked: false };
-    }
     const s = await import("./questions.server");
     const senderKey = await senderDeviceKey().catch(() => null);
     const result = await s.submitQuestion({ handle: data.handle, space: data.space, body, senderKey, masked: data.ghost });

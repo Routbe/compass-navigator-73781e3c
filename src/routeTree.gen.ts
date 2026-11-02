@@ -221,6 +221,7 @@ import { Route as ApiAdminMailCheckRouteImport } from './routes/api_.admin.mail-
 import { Route as ApiAgentIdentityRouteImport } from './routes/api_.agent.identity'
 import { Route as ApiAgentLinksRouteImport } from './routes/api_.agent.links'
 import { Route as ApiAgentWorkspacesRouteImport } from './routes/api_.agent.workspaces'
+import { Route as ApiAiRewriteRouteImport } from './routes/api_.ai.rewrite'
 import { Route as ApiAuthSplatRouteImport } from './routes/api_.auth.$'
 import { Route as ApiBadgeVerifyRouteImport } from './routes/api_.badge.verify'
 import { Route as ApiBunqCheckStatusRouteImport } from './routes/api_.bunq.check-status'
@@ -1457,6 +1458,11 @@ const ApiAgentWorkspacesRoute = ApiAgentWorkspacesRouteImport.update({
   path: '/api/agent/workspaces',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiRewriteRoute = ApiAiRewriteRouteImport.update({
+  id: '/api_/ai/rewrite',
+  path: '/api/ai/rewrite',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api_/auth/$',
   path: '/api/auth/$',
@@ -2467,6 +2473,7 @@ export interface FileRoutesByFullPath {
   '/api/agent/identity': typeof ApiAgentIdentityRoute
   '/api/agent/links': typeof ApiAgentLinksRoute
   '/api/agent/workspaces': typeof ApiAgentWorkspacesRoute
+  '/api/ai/rewrite': typeof ApiAiRewriteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/badge/verify': typeof ApiBadgeVerifyRoute
   '/api/bunq/check-status': typeof ApiBunqCheckStatusRoute
@@ -2809,6 +2816,7 @@ export interface FileRoutesByTo {
   '/api/agent/identity': typeof ApiAgentIdentityRoute
   '/api/agent/links': typeof ApiAgentLinksRoute
   '/api/agent/workspaces': typeof ApiAgentWorkspacesRoute
+  '/api/ai/rewrite': typeof ApiAiRewriteRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/badge/verify': typeof ApiBadgeVerifyRoute
   '/api/bunq/check-status': typeof ApiBunqCheckStatusRoute
@@ -3168,6 +3176,7 @@ export interface FileRoutesById {
   '/api_/agent/identity': typeof ApiAgentIdentityRoute
   '/api_/agent/links': typeof ApiAgentLinksRoute
   '/api_/agent/workspaces': typeof ApiAgentWorkspacesRoute
+  '/api_/ai/rewrite': typeof ApiAiRewriteRoute
   '/api_/auth/$': typeof ApiAuthSplatRoute
   '/api_/badge/verify': typeof ApiBadgeVerifyRoute
   '/api_/bunq/check-status': typeof ApiBunqCheckStatusRoute
@@ -3528,6 +3537,7 @@ export interface FileRouteTypes {
     | '/api/agent/identity'
     | '/api/agent/links'
     | '/api/agent/workspaces'
+    | '/api/ai/rewrite'
     | '/api/auth/$'
     | '/api/badge/verify'
     | '/api/bunq/check-status'
@@ -3870,6 +3880,7 @@ export interface FileRouteTypes {
     | '/api/agent/identity'
     | '/api/agent/links'
     | '/api/agent/workspaces'
+    | '/api/ai/rewrite'
     | '/api/auth/$'
     | '/api/badge/verify'
     | '/api/bunq/check-status'
@@ -4228,6 +4239,7 @@ export interface FileRouteTypes {
     | '/api_/agent/identity'
     | '/api_/agent/links'
     | '/api_/agent/workspaces'
+    | '/api_/ai/rewrite'
     | '/api_/auth/$'
     | '/api_/badge/verify'
     | '/api_/bunq/check-status'
@@ -4480,6 +4492,7 @@ export interface RootRouteChildren {
   ApiAgentIdentityRoute: typeof ApiAgentIdentityRoute
   ApiAgentLinksRoute: typeof ApiAgentLinksRoute
   ApiAgentWorkspacesRoute: typeof ApiAgentWorkspacesRoute
+  ApiAiRewriteRoute: typeof ApiAiRewriteRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiBadgeVerifyRoute: typeof ApiBadgeVerifyRoute
   ApiBunqCheckStatusRoute: typeof ApiBunqCheckStatusRoute
@@ -6056,6 +6069,13 @@ declare module '@tanstack/react-router' {
       path: '/api/agent/workspaces'
       fullPath: '/api/agent/workspaces'
       preLoaderRoute: typeof ApiAgentWorkspacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api_/ai/rewrite': {
+      id: '/api_/ai/rewrite'
+      path: '/api/ai/rewrite'
+      fullPath: '/api/ai/rewrite'
+      preLoaderRoute: typeof ApiAiRewriteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api_/auth/$': {
@@ -7733,6 +7753,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAgentIdentityRoute: ApiAgentIdentityRoute,
   ApiAgentLinksRoute: ApiAgentLinksRoute,
   ApiAgentWorkspacesRoute: ApiAgentWorkspacesRoute,
+  ApiAiRewriteRoute: ApiAiRewriteRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiBadgeVerifyRoute: ApiBadgeVerifyRoute,
   ApiBunqCheckStatusRoute: ApiBunqCheckStatusRoute,

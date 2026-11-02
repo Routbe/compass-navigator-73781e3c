@@ -1330,3 +1330,31 @@ select:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .qa-sent-pop { animation-duration: 1ms; }
 }
+/* Ghost Mode magic wand: shimmer over the draft while the AI rewrites it. */
+@keyframes qa-shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+.qa-shimmer {
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    hsl(var(--story-ring) / 0.22) 40%,
+    hsl(var(--story-ring-2) / 0.3) 50%,
+    hsl(var(--story-ring) / 0.22) 60%,
+    transparent 80%
+  );
+  background-size: 250% 100%;
+  animation: qa-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes qa-wand-busy {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--story-ring) / 0.55); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--story-ring) / 0); }
+}
+.qa-wand-busy {
+  animation: qa-wand-busy 1.2s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .qa-shimmer { animation: none; background-position: 50% 0; }
+  .qa-wand-busy { animation: none; }
+}
