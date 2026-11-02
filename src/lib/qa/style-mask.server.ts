@@ -9,7 +9,9 @@ import { QUESTION_MAX } from "@/lib/questions-rules";
 import {
   REWRITE_FALLBACK_MS,
   REWRITE_PRIMARY_MS,
+  acceptRewrite,
   buildRewritePrompt,
+  frameRewriteInput,
   cleanModelOutput,
   neutralizeStyle,
   resolveSovereignEndpoint,
@@ -33,7 +35,7 @@ async function attempt(url: string, key: string, model: string, infomaniak: bool
       ...(infomaniak ? { reasoning_effort: "none" } : {}),
       messages: [
         { role: "system", content: prompt },
-        { role: "user", content: text },
+        { role: "user", content: frameRewriteInput(text) },
       ],
     }),
   });
@@ -42,7 +44,12 @@ async function attempt(url: string, key: string, model: string, infomaniak: bool
     return null;
   }
   const json = (await res.json()) as { choices?: { message?: { content?: unknown } }[] };
-  return cleanModelOutput(json.choices?.[0]?.message?.content, QUESTION_MAX);
+  const out = cleanModelOutput(json.choices?.[0]?.message?.content, QUESTION_MAX);
+  if (out && !acceptRewrite(text, out)) {
+    console.warn("[qa] style mask output rejected", { model });
+    return null;
+  }
+  return out;
 }
 
 /** `uiLanguage` only breaks ties for ambiguous input; the model keeps the input's own language. */
@@ -55,7 +62,7 @@ export async function maskWritingStyle(text: string, uiLanguage?: string | null)
     fallbackModel: process.env["SOVEREIGN_AI_FALLBACK_MODEL"],
   });
   if (!key || !endpoint) return local(text, uiLanguage);
-  const prompt = buildRewritePrompt(uiLanguage);
+  const prompt = buildRewritePrompt(uiLanguage, text);
   for (const [i, model] of endpoint.models.entries()) {
     try {
       const out = await attempt(endpoint.url, key, model, endpoint.infomaniak, prompt, text, i === 0 ? REWRITE_PRIMARY_MS : REWRITE_FALLBACK_MS);
