@@ -128,11 +128,19 @@ button,
 [role="button"],
 [role="tab"],
 [data-tour^="cc-"],
-[data-qr-container],
-[data-bento-card] {
+[data-qr-container] {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+/* Text fields inside those surfaces stay typeable and selectable (iOS blocks input under user-select: none). */
+:is(button, [role="button"], [role="tab"], [data-tour^="cc-"], [data-qr-container]) :is(input, textarea, [contenteditable="true"]),
+input[data-tour^="cc-"],
+textarea[data-tour^="cc-"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
 :root {
