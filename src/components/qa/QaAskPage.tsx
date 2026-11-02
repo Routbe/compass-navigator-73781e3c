@@ -7,7 +7,7 @@ import { RoutLogo } from "@/components/RoutLogo";
 import { QaAskForm } from "./QaAskForm";
 import { QaStoryRing } from "./QaStoryRing";
 import { qaPaths, useQaPublic, type QaSpace } from "./useQaPublic";
-import type { QaPublic } from "@/lib/questions.server";
+import type { QaPublic } from "@/lib/qa/types";
 
 /** Full-screen, distraction-free anonymous message page (/u/<handle>/ask, /<handle>/ask). */
 export function QaAskPage({ handle, space, initial }: { handle: string; space: QaSpace; initial: QaPublic | null }) {

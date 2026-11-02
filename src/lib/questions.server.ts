@@ -5,7 +5,7 @@
  */
 import { sql } from "@/lib/neon";
 import { ANSWER_MAX, QUESTION_MAX, normalizeText } from "./questions-rules";
-import type { QaAnswer } from "./qa/story";
+import type { QaPublic } from "./qa/types";
 
 type Row = Record<string, unknown>;
 export type QaSpace = "root" | "alias";
@@ -21,17 +21,7 @@ export type Question = {
   answeredAt: string | null;
   storyUntil: string | null;
 };
-export type QaPublic = {
-  accepting: boolean;
-  onHub: boolean;
-  page: boolean;
-  promptKey: string | null;
-  promptCustom: string | null;
-  displayName: string | null;
-  avatarUrl: string | null;
-  qaLevel: string | null;
-  answers: QaAnswer[];
-};
+export type { QaPublic } from "./qa/types";
 
 const iso = (v: unknown) => (v ? new Date(String(v)).toISOString() : null);
 const str = (v: unknown) => (typeof v === "string" && v ? v : null);
