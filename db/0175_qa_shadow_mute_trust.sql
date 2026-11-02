@@ -178,6 +178,8 @@ begin
     'promptCustom', o.prefs ->> 'qaPromptCustom',
     'displayName', o.display_name,
     'avatarUrl', o.avatar_url,
+    -- 0174 may not be applied yet: read the level through to_jsonb so a missing column reads as null.
+    'qaLevel', (select to_jsonb(u) ->> 'qa_permission_level' from public.users u where u.id = o.owner_id),
     'answers', coalesce((
       select jsonb_agg(jsonb_build_object('id', q.id, 'body', q.body, 'answer', q.answer, 'prompt', q.prompt,
                                           'answeredAt', q.answered_at, 'storyUntil', q.story_until) order by q.answered_at desc)
