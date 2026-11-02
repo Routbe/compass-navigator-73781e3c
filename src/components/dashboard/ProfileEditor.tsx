@@ -1192,7 +1192,7 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
                     displayName={displayName || null}
                     avatarUrl={avatarUrl || null}
                     prefs={prefs}
-                    onPref={(key, value) => setPref(key, value)}
+                    onPref={(key, value) => setPref(key, value as never)}
                   />
                 )}
                 <GuestbookAccordion enabled={prefs.guestbookEnabled} onEnabledChange={(v) => setPref("guestbookEnabled", v)} />
