@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { needsNudge } from "@/lib/qa/nudge";
-import { buildRewritePrompt, cleanModelOutput, guessLanguage, neutralizeStyle, resolveSovereignEndpoint, REWRITE_RATE, STYLE_MASK_SYSTEM_PROMPT } from "@/lib/qa/style-mask";
+import { acceptRewrite, buildRewritePrompt, cleanModelOutput, detectInputLanguage, guessLanguage, neutralizeStyle, resolveSovereignEndpoint, REWRITE_RATE, STYLE_MASK_SYSTEM_PROMPT } from "@/lib/qa/style-mask";
 import { nextDiceIndex, promptHeadline, resolvePromptKey, storedPromptLabel } from "@/lib/qa/prompts";
 import { activeStories, hasUnseen, QA_STORY_HOURS, type QaAnswer } from "@/lib/qa/story";
 import { QUESTION_RATE } from "@/lib/questions-rules";
@@ -42,10 +42,23 @@ describe("ghost mode (stylometry masking)", () => {
     expect(STYLE_MASK_SYSTEM_PROMPT).toContain("DO NOT translate the text to another language.");
     expect(STYLE_MASK_SYSTEM_PROMPT).not.toContain("Standaardnederlands");
   });
-  it("uses the UI language only as the tie-breaker for ambiguous input", () => {
-    expect(buildRewritePrompt("fr")).toContain("The user is currently browsing the site in fr. If the input language is ambiguous, default to standardizing it in fr.");
-    expect(buildRewritePrompt("xx")).toBe(STYLE_MASK_SYSTEM_PROMPT);
-    expect(buildRewritePrompt(null)).toBe(STYLE_MASK_SYSTEM_PROMPT);
+  it("adds the UI-language tie-breaker only when the draft's language is ambiguous", () => {
+    const hint = "The user is currently browsing the site in fr. If the input language is ambiguous, default to standardizing it in fr.";
+    expect(buildRewritePrompt("fr", "ok 😂😂")).toContain(hint);
+    expect(buildRewritePrompt("nl", "yo bro why u ain't tell me that")).not.toContain("browsing the site");
+    expect(buildRewritePrompt("xx", "ok")).not.toContain("browsing the site");
+  });
+  it("detects clear French, English, German and Dutch drafts", () => {
+    expect(detectInputLanguage("wsh frérot pk t’as pas dit ça à moi")).toBe("fr");
+    expect(detectInputLanguage("yo bro why u ain't tell me that")).toBe("en");
+    expect(detectInputLanguage("alter warum hast du mir das nich gesagt")).toBe("de");
+    expect(detectInputLanguage("waarom zegde ge da nie tegen mij")).toBe("nl");
+    expect(detectInputLanguage("ok")).toBeNull();
+  });
+  it("rejects a rewrite that translated the draft or became a reply", () => {
+    expect(acceptRewrite("yo bro why u ain't tell me that", "Waarom heb je dat niet tegen me gezegd?")).toBe(false);
+    expect(acceptRewrite("yo bro why u ain't tell me that", "Why didn't you tell me that?")).toBe(true);
+    expect(acceptRewrite("ok", "Je ne comprends pas votre demande. Veuillez reformuler votre message.")).toBe(false);
   });
   it("offline fallback keeps French and English instead of turning them Dutch", () => {
     expect(guessLanguage("slt pk tu dis ça mdr", "nl")).toBe("fr");
