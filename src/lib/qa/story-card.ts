@@ -153,8 +153,8 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
   const cardX = 90, cardW = STORY_W - 180, pad = 64;
   ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
 
-  let y = STORY_SAFE_TOP + 40;
-  const avatarR = input.kind === "prompt" ? 120 : 84;
+  let y = STORY_SAFE_TOP + (input.kind === "prompt" ? 40 : 0);
+  const avatarR = input.kind === "prompt" ? 120 : 72;
   await drawAvatar(ctx, withAvatar ? input.avatarSrc : null, name, STORY_W / 2, y + avatarR, avatarR, family);
   y += avatarR * 2 + 76;
   ctx.fillStyle = token("--story-card");
@@ -164,11 +164,11 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
 
   // Card: gradient header (prompt / question) + light body (link / answer).
   const headText = input.kind === "prompt" ? input.prompt : input.question;
-  const head = fitText(ctx, headText, display, 400, 76, 44, cardW - pad * 2, input.kind === "prompt" ? 4 : 5);
+  const head = fitText(ctx, headText, display, 400, input.kind === "prompt" ? 76 : 66, 44, cardW - pad * 2, input.kind === "prompt" ? 4 : 5);
   const labelH = input.kind === "answer" ? 56 : 0;
   const headH = pad * 2 + labelH + head.lines.length * head.size * 1.18;
   const bodyText = input.kind === "prompt" ? input.sendMe : input.answer;
-  const body = fitText(ctx, bodyText, family, input.kind === "prompt" ? 500 : 600, input.kind === "prompt" ? 44 : 56, 34, cardW - pad * 2, input.kind === "prompt" ? 2 : 7);
+  const body = fitText(ctx, bodyText, family, input.kind === "prompt" ? 500 : 600, input.kind === "prompt" ? 44 : 50, 34, cardW - pad * 2, input.kind === "prompt" ? 2 : 7);
   const hasBody = bodyText.trim().length > 0;
   const bodyH = hasBody ? pad * 2 + body.lines.length * body.size * 1.3 : 0;
   const cardH = headH + bodyH;
