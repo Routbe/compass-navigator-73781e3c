@@ -206,24 +206,7 @@ export function createRoutAuth(request?: Request) {
       pkce: true,
     });
   }
-  // Proton (Zwitserland) — OIDC via discovery. Proton publiceert (nog) geen
-  // openbare OIDC voor derden: alleen actief met eigen client + discovery-URL.
-  const proton = pair("PROTON_CLIENT_ID", "PROTON_CLIENT_SECRET");
-  const protonDiscovery = env("PROTON_DISCOVERY_URL");
-  if (proton && protonDiscovery) {
-    genericConfigs.push({
-      providerId: "proton",
-      discoveryUrl: protonDiscovery,
-      ...proton,
-      scopes: ["openid", "profile", "email"],
-      pkce: true,
-      mapProfileToUser: (p: Record<string, unknown>) => ({
-        email: typeof p["email"] === "string" ? (p["email"] as string).toLowerCase() : undefined,
-        name: (p["name"] as string) ?? undefined,
-        emailVerified: p["email_verified"] === true,
-      }),
-    });
-  }
+
   // Infomaniak (Zwitserland) — native OIDC, geen tussenpartij.
   const infomaniak = pair("INFOMANIAK_CLIENT_ID", "INFOMANIAK_CLIENT_SECRET");
   if (infomaniak) {
@@ -391,7 +374,6 @@ export function enabledProviders(): string[] {
   if (pair("APPLE_CLIENT_ID", "APPLE_CLIENT_SECRET")) list.push("apple");
   if (oidcConfigured()) list.push("oidc");
   if (pair("INFOMANIAK_CLIENT_ID", "INFOMANIAK_CLIENT_SECRET")) list.push("infomaniak");
-  if (pair("PROTON_CLIENT_ID", "PROTON_CLIENT_SECRET") && env("PROTON_DISCOVERY_URL")) list.push("proton");
   return list;
 }
 
@@ -402,7 +384,6 @@ const PROVIDER_KEYS: Record<string, string[]> = {
   apple: ["APPLE_CLIENT_ID", "APPLE_CLIENT_SECRET"],
   oidc: ["OIDC_CLIENT_ID", "OIDC_CLIENT_SECRET", "OIDC_DISCOVERY_URL"],
   infomaniak: ["INFOMANIAK_CLIENT_ID", "INFOMANIAK_CLIENT_SECRET"],
-  proton: ["PROTON_CLIENT_ID", "PROTON_CLIENT_SECRET", "PROTON_DISCOVERY_URL"],
 };
 
 /** Is a sign-in provider fully configured? Names only — never values. */
@@ -462,7 +443,7 @@ export function authDiagnostics(request?: Request) {
   };
   const providers = Object.entries(PROVIDER_KEYS).map(([id, keys]) => {
     const missing = keys.filter((k) => !envAny(k));
-    const generic = id === "oidc" || id === "infomaniak" || id === "proton";
+    const generic = id === "oidc" || id === "infomaniak";
     return {
       id,
       configured: missing.length === 0,

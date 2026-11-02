@@ -24,31 +24,31 @@ const SOCIALS = [
 ];
 
 const PLATFORM = [
-  { to: "/", label: "QR generator" },
-  { to: "/studio", label: "Profile Studio" },
-  { to: "/batch", label: "Batch engine" },
-  { to: "/dashboard", label: "Dynamic routing" },
+  { to: "/qr-code-generator", label: "footer.link.qr" },
+  { to: "/studio", label: "footer.link.studio" },
+  { to: "/batch", label: "footer.link.batch" },
+  { to: "/dashboard", label: "footer.link.routing" },
 ];
 
 const INFRASTRUCTURE = [
-  { to: "/domains", label: "Custom domains" },
-  { to: "/console", label: "Developer Console" },
-  { to: "/developers", label: "Developer docs" },
-  { to: "/self-hosting", label: "Self-hosting guide" },
+  { to: "/domains", label: "footer.link.domains" },
+  { to: "/console", label: "footer.link.console" },
+  { to: "/developers", label: "footer.link.docs" },
+  { to: "/self-hosting", label: "footer.link.selfHosting" },
 ];
 
 const ECOSYSTEM = [
-  { to: "/explore", label: "Explore profiles" },
-  { to: "/manifesto", label: "Manifesto" },
-  { to: "/press", label: "Press & brand kit" },
-  { href: GITHUB_REPO, label: "GitHub repository" },
+  { to: "/explore", label: "footer.link.explore" },
+  { to: "/manifesto", label: "footer.link.manifesto" },
+  { to: "/press", label: "footer.link.press" },
+  { href: GITHUB_REPO, label: "footer.link.github" },
 ];
 
 const SUPPORT = [
-  { to: "/contact", label: "Contact form" },
-  { to: "/sovereignty", label: "Sovereignty" },
-  { to: "/privacy", label: "Privacy policy" },
-  { to: "/terms", label: "Terms" },
+  { to: "/contact", label: "footer.link.contact" },
+  { to: "/sovereignty", label: "footer.link.sovereignty" },
+  { to: "/privacy", label: "footer.link.privacy" },
+  { to: "/terms", label: "footer.link.terms" },
 ];
 
 const AUTH_ROUTES = new Set(["/auth", "/login"]);
@@ -70,7 +70,7 @@ export function Footer() {
           isAdminRoute ? "hidden md:block" : ""
         }`}
       >
-        <div className="flex items-center justify-center gap-4 pb-4 pt-6 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-5 text-center text-xs text-muted-foreground">
           <span>© ROUT</span>
           <span aria-hidden>•</span>
           <Link to="/privacy" className="hover:text-foreground">
@@ -94,10 +94,12 @@ export function Footer() {
       <div className="container mx-auto px-4 py-6 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:py-8">
         <div className="min-w-0 space-y-3">
           {/* Altijd naar de root van de huidige omgeving — nooit een preview-host. */}
-          <Link to="/" aria-label="ROUT home" className="inline-flex">
-            <RoutLogo size={24} />
+          <div className="flex items-center justify-between gap-3">
+            <Link to="/" aria-label={t("footer.home")} className="inline-flex shrink-0">
+              <RoutLogo size={24} />
+            </Link>
             <LocaleDropdown />
-          </Link>
+          </div>
           <p className="max-w-xs text-sm text-muted-foreground">{t("footer.tagline")}</p>
           <div
             data-testid="footer-socials"
@@ -118,52 +120,52 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:gap-8 md:grid-cols-4">
-          <nav className="space-y-3">
-            <p className={headingClass}>Platform</p>
+        <div className="mt-6 grid grid-cols-2 items-start gap-x-6 gap-y-6 sm:gap-8 md:grid-cols-4">
+          <nav className="min-w-0 space-y-3">
+            <p className={headingClass}>{t("footer.col.platform")}</p>
             <ul className="space-y-1.5">
               {PLATFORM.map((l) => (
                 <li key={l.to}>
                   <Link to={l.to} className={linkClass}>
-                    {l.label}
+                    {t(l.label)}
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          <nav className="space-y-3">
-            <p className={headingClass}>Infrastructure</p>
+          <nav className="min-w-0 space-y-3">
+            <p className={headingClass}>{t("footer.col.infrastructure")}</p>
             <ul className="space-y-1.5">
               {INFRASTRUCTURE.map((l) => (
                 <li key={l.to}>
                   <Link to={l.to} className={linkClass}>
-                    {l.label}
+                    {t(l.label)}
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          <nav className="space-y-3">
-            <p className={headingClass}>Ecosystem</p>
+          <nav className="min-w-0 space-y-3">
+            <p className={headingClass}>{t("footer.col.ecosystem")}</p>
             <ul className="space-y-1.5">
               {ECOSYSTEM.map((l) =>
                 "href" in l ? (
-                  <li key={l.label}>
+                  <li key={t(l.label)}>
                     <a
                       href={l.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={linkClass}
                     >
-                      {l.label}
+                      {t(l.label)}
                     </a>
                   </li>
                 ) : (
                   <li key={l.to}>
                     <Link to={l.to} className={linkClass}>
-                      {l.label}
+                      {t(l.label)}
                     </Link>
                   </li>
                 ),
@@ -171,13 +173,13 @@ export function Footer() {
             </ul>
           </nav>
 
-          <nav data-testid="footer-support-nav" className="space-y-3">
-            <p className={headingClass}>Support &amp; Legal</p>
+          <nav data-testid="footer-support-nav" className="min-w-0 space-y-3">
+            <p className={headingClass}>{t("footer.col.support")}</p>
             <ul className="space-y-1.5">
               {SUPPORT.map((l) => (
                 <li key={l.to}>
                   <Link to={l.to} className={linkClass}>
-                    {l.label}
+                    {t(l.label)}
                   </Link>
                 </li>
               ))}
@@ -188,7 +190,7 @@ export function Footer() {
         <div className="mt-6 flex flex-col items-center gap-2 border-t border-border/40 pt-4 text-center text-xs text-muted-foreground">
           <p>
             <span>© 2026 ROUT</span>{" "}
-            · Open Source (AGPLv3) · Designed &amp; engineered by{" "}
+            · {t("footer.credit")}{" "}
             <a
               href="https://delplanche.cloud"
               target="_blank"

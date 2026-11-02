@@ -39,7 +39,7 @@ import { SIGNUP_CONSENT_HEADER, SIGNUP_CONSENT_VERSION, canSubmitSignUp } from "
 import { SIGNUP_DOB_HEADER, SIGNUP_PARENT_EMAIL_HEADER, isMinorDob, signupAgeProblem } from "@/lib/minor-safety";
 
 /** Providers die via Better Auth's generic OAuth/OIDC-plugin lopen. */
-const GENERIC_OAUTH = new Set(["oidc", "infomaniak", "proton"]);
+const GENERIC_OAUTH = new Set(["oidc", "infomaniak"]);
 
 /** Deliberately permissive: catches typos, never rejects a valid address. */
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -448,10 +448,10 @@ export default function AuthNeon({ initialMode = "magic" }: { initialMode?: Mode
           </div>
 
           {unavailable && <Alert variant="destructive" className="mb-4"><AlertDescription>{AUTH_UNAVAILABLE_TEXT[locale]}</AlertDescription></Alert>}
-          <Button type="button" onClick={() => void passkeyLogin()} disabled={loading || unavailable} className="cta-glow mb-1 h-12 w-full gap-2 text-base">
-            <Fingerprint className="h-4 w-4" /> {t("auth.passkey")}
+          <Button type="button" onClick={() => void passkeyLogin()} disabled={loading || unavailable} className="cta-glow mb-1 h-auto min-h-12 w-full gap-2 whitespace-normal px-4 py-3 text-center text-sm leading-tight sm:text-base">
+            <Fingerprint className="h-4 w-4 shrink-0" /> <span className="min-w-0">{t("auth.passkey")}</span>
           </Button>
-          <p className="mb-3 text-center text-[11px] text-muted-foreground">Face ID, Touch ID of beveiligingssleutel — zonder wachtwoord.</p>
+          <p className="mb-3 text-center text-[11px] text-muted-foreground">{t("auth.passkey.hint")}</p>
 
           {!adminPortal && (
             <p data-testid="auth-implicit-consent" className="mb-2 text-center text-[11px] leading-relaxed text-muted-foreground">
