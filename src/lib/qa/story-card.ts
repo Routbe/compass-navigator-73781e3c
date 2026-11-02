@@ -164,7 +164,7 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
 
   // Card: gradient header (prompt / question) + light body (link / answer).
   const headText = input.kind === "prompt" ? input.prompt : input.question;
-  const head = fitText(ctx, headText, display, 800, 76, 44, cardW - pad * 2, input.kind === "prompt" ? 4 : 5);
+  const head = fitText(ctx, headText, display, 400, 76, 44, cardW - pad * 2, input.kind === "prompt" ? 4 : 5);
   const labelH = input.kind === "answer" ? 56 : 0;
   const headH = pad * 2 + labelH + head.lines.length * head.size * 1.18;
   const bodyText = input.kind === "prompt" ? input.sendMe : input.answer;
@@ -195,7 +195,7 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
     ty += labelH;
   }
   ctx.fillStyle = token("--story-card");
-  ctx.font = `800 ${head.size}px ${display}`;
+  ctx.font = `400 ${head.size}px ${display}`;
   drawLines(ctx, head.lines, STORY_W / 2, ty + head.size, head.size * 1.18);
 
   ctx.fillStyle = token("--story-ink", input.kind === "prompt" ? 0.55 : 1);
@@ -205,7 +205,7 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
   // Sticker hint + link, then the bunny, all above the bottom safe zone.
   let by = cardY + cardH + 110;
   ctx.fillStyle = token("--story-card");
-  ctx.font = `800 58px ${display}`;
+  ctx.font = `400 64px ${display}`;
   ctx.fillText(input.hint, STORY_W / 2, by);
   by += 64;
   ctx.fillStyle = token("--story-card", 0.7);
@@ -215,7 +215,7 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
   const logoSize = 76;
   const logo = await tintedLogo(token("--story-card"), logoSize * 2);
   const ly = STORY_H - STORY_SAFE_BOTTOM - logoSize;
-  ctx.font = `800 40px ${display}`;
+  ctx.font = `400 44px ${display}`;
   const word = "ROUT";
   const ww = ctx.measureText(word).width;
   const total = logoSize + 18 + ww;
