@@ -146,3 +146,15 @@ export const setMyQuestionsEnabled = createServerFn({ method: "POST" })
     await s.setQuestionsEnabled(context.userId, data.enabled);
     return { ok: true };
   });
+
+/** Own handles + avatars per canvas, used to render share cards from the inbox. */
+export const getMyQaOwners = createServerFn({ method: "GET" })
+  .middleware([requireAuth])
+  .handler(async ({ context }) => {
+    const s = await import("./questions.server");
+    try {
+      return { owners: await s.myQaOwners(context.userId) };
+    } catch {
+      return { owners: {} };
+    }
+  });

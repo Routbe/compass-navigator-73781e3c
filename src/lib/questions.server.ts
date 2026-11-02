@@ -143,3 +143,19 @@ export async function setQuestionsEnabled(ownerId: string, on: boolean): Promise
   await sql`update public.profiles set display_prefs = coalesce(display_prefs, '{}'::jsonb) || jsonb_build_object('questionsEnabled', ${on}::boolean)
      where id = ${ownerId}`;
 }
+
+export type QaOwner = { handle: string; displayName: string | null; avatarUrl: string | null };
+
+/** The signed-in member's own canvases (for share cards); RLS-scoped to their rows. */
+export async function myQaOwners(userId: string): Promise<Partial<Record<QaSpace, QaOwner>>> {
+  const [root, alias] = await Promise.all([
+    sql`select username, display_name, avatar_url from public.profiles where id = ${userId} limit 1` as Promise<Row[]>,
+    (sql`select handle, display_name, avatar_url from public.alias_profiles where user_id = ${userId} limit 1` as Promise<Row[]>).catch(() => [] as Row[]),
+  ]);
+  const out: Partial<Record<QaSpace, QaOwner>> = {};
+  const r = root[0];
+  if (r && str(r["username"])) out.root = { handle: String(r["username"]), displayName: str(r["display_name"]), avatarUrl: str(r["avatar_url"]) };
+  const a = alias[0];
+  if (a && str(a["handle"])) out.alias = { handle: String(a["handle"]), displayName: str(a["display_name"]), avatarUrl: str(a["avatar_url"]) };
+  return out;
+}
