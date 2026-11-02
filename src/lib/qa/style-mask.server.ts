@@ -9,7 +9,7 @@ import { QUESTION_MAX } from "@/lib/questions-rules";
 import {
   REWRITE_FALLBACK_MS,
   REWRITE_PRIMARY_MS,
-  STYLE_MASK_SYSTEM_PROMPT,
+  buildRewritePrompt,
   cleanModelOutput,
   neutralizeStyle,
   resolveSovereignEndpoint,
@@ -17,11 +17,11 @@ import {
 
 export type MaskResult = { text: string; via: "sovereign" | "local" };
 
-function local(text: string): MaskResult {
-  return { text: neutralizeStyle(text).slice(0, QUESTION_MAX), via: "local" };
+function local(text: string, uiLanguage?: string | null): MaskResult {
+  return { text: neutralizeStyle(text, uiLanguage).slice(0, QUESTION_MAX), via: "local" };
 }
 
-async function attempt(url: string, key: string, model: string, infomaniak: boolean, text: string, ms: number) {
+async function attempt(url: string, key: string, model: string, infomaniak: boolean, prompt: string, text: string, ms: number) {
   const res = await fetch(url, {
     method: "POST",
     signal: AbortSignal.timeout(ms),
@@ -32,7 +32,7 @@ async function attempt(url: string, key: string, model: string, infomaniak: bool
       max_tokens: 300,
       ...(infomaniak ? { reasoning_effort: "none" } : {}),
       messages: [
-        { role: "system", content: STYLE_MASK_SYSTEM_PROMPT },
+        { role: "system", content: prompt },
         { role: "user", content: text },
       ],
     }),
@@ -45,7 +45,8 @@ async function attempt(url: string, key: string, model: string, infomaniak: bool
   return cleanModelOutput(json.choices?.[0]?.message?.content, QUESTION_MAX);
 }
 
-export async function maskWritingStyle(text: string): Promise<MaskResult> {
+/** `uiLanguage` only breaks ties for ambiguous input; the model keeps the input's own language. */
+export async function maskWritingStyle(text: string, uiLanguage?: string | null): Promise<MaskResult> {
   const key = process.env["SOVEREIGN_AI_API_KEY"]?.trim();
   const endpoint = resolveSovereignEndpoint({
     baseUrl: process.env["SOVEREIGN_AI_BASE_URL"],
@@ -53,14 +54,15 @@ export async function maskWritingStyle(text: string): Promise<MaskResult> {
     model: process.env["SOVEREIGN_AI_MODEL"],
     fallbackModel: process.env["SOVEREIGN_AI_FALLBACK_MODEL"],
   });
-  if (!key || !endpoint) return local(text);
+  if (!key || !endpoint) return local(text, uiLanguage);
+  const prompt = buildRewritePrompt(uiLanguage);
   for (const [i, model] of endpoint.models.entries()) {
     try {
-      const out = await attempt(endpoint.url, key, model, endpoint.infomaniak, text, i === 0 ? REWRITE_PRIMARY_MS : REWRITE_FALLBACK_MS);
+      const out = await attempt(endpoint.url, key, model, endpoint.infomaniak, prompt, text, i === 0 ? REWRITE_PRIMARY_MS : REWRITE_FALLBACK_MS);
       if (out) return { text: out, via: "sovereign" };
     } catch (e) {
       console.warn("[qa] style mask attempt failed", { model, reason: e instanceof Error ? e.name : "error" });
     }
   }
-  return local(text);
+  return local(text, uiLanguage);
 }
