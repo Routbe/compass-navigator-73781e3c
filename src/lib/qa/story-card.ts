@@ -172,7 +172,8 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
   const hasBody = bodyText.trim().length > 0;
   const bodyH = hasBody ? pad * 2 + body.lines.length * body.size * 1.3 : 0;
   const cardH = headH + bodyH;
-  const maxBottom = STORY_H - STORY_SAFE_BOTTOM - 210;
+  // Reserve room below the card for the hint, the link and the bunny mark.
+  const maxBottom = STORY_H - STORY_SAFE_BOTTOM - 76 - 250;
   const cardY = Math.min(y + 30, maxBottom - cardH);
 
   ctx.save();

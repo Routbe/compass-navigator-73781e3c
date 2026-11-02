@@ -10,7 +10,8 @@ import { qaPaths, type QaSpace } from "./useQaPublic";
 const STORY_MS = 6500;
 
 function relativeTime(iso: string, locale: string): string {
-  const diff = (Date.parse(iso) - Date.now()) / 1000;
+  // Clamp small clock skew so a fresh answer never reads "in a minute".
+  const diff = Math.min(0, (Date.parse(iso) - Date.now()) / 1000);
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
   if (Math.abs(diff) < 3600) return rtf.format(Math.round(diff / 60), "minute");
   return rtf.format(Math.round(diff / 3600), "hour");
@@ -63,7 +64,7 @@ export function QaStoryViewer({ stories, handle, space, displayName, avatarUrl, 
       role="dialog"
       aria-modal="true"
       aria-label={t("pages.qa.story.open", { name })}
-      className="fixed inset-0 z-[80] flex select-none flex-col bg-gradient-to-b from-story-from to-story-to text-story-card"
+      className="fixed inset-0 z-[110] flex select-none flex-col bg-gradient-to-b from-story-from to-story-to text-story-card"
       style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
       onPointerDown={() => setPaused(true)}
       onPointerUp={() => setPaused(false)}
