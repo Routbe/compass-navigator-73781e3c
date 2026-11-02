@@ -62,10 +62,10 @@ export async function reportError(r: ErrorReport, deps?: ReporterDeps): Promise<
 async function defaultDeps(): Promise<ReporterDeps> {
   const { sendMail } = await import("@/emails/send.server");
   const { hitRateLimit } = await import("@/lib/rate-limit-db.server");
-  const { CONTACT_RECIPIENT } = await import("@/lib/contact.server");
+  const { contactRecipient } = await import("@/lib/contact.server");
   return {
     send: (m) => sendMail({ ...m, category: "system", language: "nl" }),
     limit: (bucket) => hitRateLimit("error-report", bucket, AUTO_REPORT_RULE),
-    recipient: () => process.env["ERROR_REPORT_EMAIL"] ?? process.env["ADMIN_EMAIL"] ?? CONTACT_RECIPIENT,
+    recipient: () => process.env["ERROR_REPORT_EMAIL"] ?? process.env["ADMIN_EMAIL"] ?? contactRecipient(),
   };
 }

@@ -11,7 +11,8 @@
  * gets a structured result it can persist.
  */
 
-export const CONTACT_RECIPIENT = process.env["CONTACT_ADMIN_EMAIL"] ?? "hallo@rout.be";
+/** Read per call: on Cloudflare Workers env is only available inside a request. */
+export const contactRecipient = (): string => process.env["CONTACT_ADMIN_EMAIL"] ?? "hallo@rout.be";
 export const CONTACT_LOCALES = ["nl", "en", "fr", "de"] as const;
 export type ContactLocale = (typeof CONTACT_LOCALES)[number];
 
@@ -66,7 +67,7 @@ export async function sendVisitorAutoReply(payload: ContactPayload): Promise<voi
     subject: "ROUT — we hebben je bericht ontvangen",
     category: "form",
     language: payload.locale,
-    replyTo: { email: CONTACT_RECIPIENT, name: "ROUT" },
+    replyTo: { email: contactRecipient(), name: "ROUT" },
     // The visitor's own text is never echoed: the recipient address is unverified.
     params: { NAME: "", MESSAGE: "", SUBJECT: "" },
     html:
@@ -81,7 +82,7 @@ export async function sendVisitorAutoReply(payload: ContactPayload): Promise<voi
 export async function sendAdminNotification(payload: ContactPayload): Promise<void> {
   const { sendMail } = await import("@/emails/send.server");
   const { sent, error } = await sendMail({
-    to: CONTACT_RECIPIENT,
+    to: contactRecipient(),
     subject: adminSubject(payload),
     category: "system",
     language: "nl",
