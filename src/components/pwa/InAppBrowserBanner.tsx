@@ -35,7 +35,7 @@ export function InAppBrowserBanner() {
   };
 
   return (
-    <div role="status" className="fixed inset-x-0 bottom-0 z-[60] select-none border-t border-border bg-foreground pb-[env(safe-area-inset-bottom)] text-background">
+    <div role="status" className="fixed inset-x-0 top-0 z-[60] select-none border-b border-border bg-foreground pt-[env(safe-area-inset-top)] text-background">
       <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2.5 text-xs">
         <p className="min-w-0 flex-1 leading-snug">{t("inAppBrowser.message")}</p>
         {intent ? (

@@ -128,7 +128,8 @@ button,
 [role="button"],
 [role="tab"],
 [data-tour^="cc-"],
-[data-qr-container] {
+[data-qr-container],
+[data-bento-card] {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
