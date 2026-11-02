@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import {
   answerMyQuestion,
   deleteMyQuestion,
+  getMyQaOwners,
   getMyQuestions,
   muteSenderOfQuestion,
   unpublishMyQuestion,
@@ -29,17 +30,14 @@ import { cn } from "@/lib/utils";
 import { QaShareDialog, type QaShareTarget } from "./QaShareDialog";
 import type { QaSpace } from "./useQaPublic";
 
-type Owner = { handle: string; displayName: string | null; avatarUrl: string | null };
-
 /**
  * The Void Inbox: dark bento cards with three actions per message — answer
  * publicly, share as a story, or shadow-mute the unknown sender. The mute call
  * carries only the message id; who sent it is never known to this screen.
  */
-export function QaInbox({ space, owners, limit, compact = false }: {
+export function QaInbox({ space, limit, compact = false }: {
   /** null = every canvas (Command Center), otherwise one Studio canvas. */
   space: QaSpace | null;
-  owners: Partial<Record<QaSpace, Owner>>;
   limit?: number;
   compact?: boolean;
 }) {
@@ -50,7 +48,10 @@ export function QaInbox({ space, owners, limit, compact = false }: {
   const unpublish = useServerFn(unpublishMyQuestion);
   const del = useServerFn(deleteMyQuestion);
   const mute = useServerFn(muteSenderOfQuestion);
+  const fetchOwners = useServerFn(getMyQaOwners);
   const q = useQuery({ queryKey: ["my-questions", space ?? "all"], queryFn: () => fetchMine({ data: { space } }), retry: false });
+  const ownersQ = useQuery({ queryKey: ["my-qa-owners"], queryFn: () => fetchOwners(), staleTime: 300_000, retry: false });
+  const owners = ownersQ.data?.owners ?? {};
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [replying, setReplying] = useState<string | null>(null);
   const [muteId, setMuteId] = useState<string | null>(null);
