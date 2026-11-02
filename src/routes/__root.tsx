@@ -141,7 +141,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       // Statusbalk van de browser volgt de huisstijl, licht én donker.
-      { name: "theme-color", content: "#FAFAFA", media: "(prefers-color-scheme: light)" },
+      // Light variant is rendered in RootShell: head() keeps only one tag per name.
       { name: "theme-color", content: "#0B0B0C", media: "(prefers-color-scheme: dark)" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
@@ -178,6 +178,8 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <BrandedHeadContent />
+        {/* After the route tags, so a page accent colour (no media) still wins. */}
+        <meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)" />
       </head>
       <body>
         {children}
