@@ -10,3 +10,13 @@
 - [ ] Emails (check every template in all 4 languages)
 - [ ] Admin + Developer Console screens
 - Measure progress with `bun scripts/i18n-hardcoded.ts` (started at ~2,750 hits in 319 files)
+
+# Roadmap — anonymous Q&A ("NGL-killer")
+
+- [x] Zero-knowledge shadow mute, trust score and delayed global shadow-ban (db/0175, applied to Neon)
+- [x] Public /ask pages, hub block, NGL prompts, dice, pre-send nudge, Ghost Mode, haptics
+- [x] Green status ring + story viewer for answers (24 h)
+- [x] Story card generator + share (Instagram/Snapchat/WhatsApp)
+- [x] Void Inbox in Studio + Command Center
+- [ ] Settings list to lift mutes (future, per the brief)
+- [ ] Ghost Mode with the sovereign model: needs SOVEREIGN_AI_BASE_URL / SOVEREIGN_AI_API_KEY
