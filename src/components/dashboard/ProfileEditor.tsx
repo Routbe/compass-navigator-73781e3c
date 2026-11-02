@@ -1185,7 +1185,16 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
                   }
                 }}
               >
-                <QuestionsInboxAccordion enabled={prefs.questionsEnabled} onEnabledChange={(v) => setPref("questionsEnabled", v)} />
+                {!isWorkspace && (
+                  <QuestionsInboxAccordion
+                    space={alias ? "alias" : "root"}
+                    handle={normalized}
+                    displayName={displayName || null}
+                    avatarUrl={avatarUrl || null}
+                    prefs={prefs}
+                    onPref={setPref}
+                  />
+                )}
                 <GuestbookAccordion enabled={prefs.guestbookEnabled} onEnabledChange={(v) => setPref("guestbookEnabled", v)} />
 
                 {/* 🏅 Badges: eigen map binnen Links & componenten, met schakelaar. */}
@@ -1977,7 +1986,7 @@ export function ProfileEditor({ variant = "verified", pageMode = "profile", onPa
                   <span className="text-base font-medium">{t("studio.editor.support")}</span>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4 pb-5">
-                  <ExtraPagesPanel handle={normalized} onTipEnabledChange={setTipEnabled} />
+                  <ExtraPagesPanel handle={normalized} onTipEnabledChange={setTipEnabled} qaPath={`${alias ? "/u/" : "/"}${normalized}/ask`} qaPage={prefs.questionsEnabled && prefs.qaPage} onQaPageChange={(v) => { if (v) setPref("questionsEnabled", true); setPref("qaPage", v); }} />
                 </AccordionContent>
               </AccordionItem>
 

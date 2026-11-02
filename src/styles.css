@@ -176,6 +176,15 @@ textarea[data-tour^="cc-"] {
   --highlight: 150 24% 92%;
   --highlight-foreground: 155 30% 20%;
 
+  /* Q&A status ring + story cards (same in both themes, like a status app) */
+  --story-ring: 145 63% 45%;
+  --story-ring-2: 160 70% 38%;
+  --story-bg-from: 155 32% 16%;
+  --story-bg-to: 30 6% 7%;
+  --story-card: 42 31% 96%;
+  --story-ink: 30 6% 9%;
+  --story-glow: 145 63% 45%;
+
   /* Earthy sticker tones */
   --terracotta: 15 63% 60%;
   --terracotta-foreground: 15 45% 18%;
@@ -292,6 +301,12 @@ textarea[data-tour^="cc-"] {
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
   --color-highlight: hsl(var(--highlight));
+  --color-story-ring: hsl(var(--story-ring));
+  --color-story-ring-2: hsl(var(--story-ring-2));
+  --color-story-card: hsl(var(--story-card));
+  --color-story-ink: hsl(var(--story-ink));
+  --color-story-from: hsl(var(--story-bg-from));
+  --color-story-to: hsl(var(--story-bg-to));
   --color-highlight-foreground: hsl(var(--highlight-foreground));
   --color-terracotta: hsl(var(--terracotta));
   --color-terracotta-foreground: hsl(var(--terracotta-foreground));
@@ -1284,3 +1299,34 @@ select:focus-visible {
 .qr-pulse { animation: qr-pulse 2.8s ease-in-out infinite; }
 @keyframes qr-pulse { 0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0); } 50% { box-shadow: 0 0 24px 2px hsl(var(--primary) / 0.45); } }
 @media (prefers-reduced-motion: reduce) { .qr-pulse { animation: none; } }
+
+/* Q&A status ring: conic sweep like a status/story ring; muted once watched. */
+.qa-story-ring {
+  background: conic-gradient(from 210deg, hsl(var(--story-ring)), hsl(var(--story-ring-2)), hsl(var(--story-ring)));
+}
+.qa-story-ring[data-seen="true"] {
+  background: hsl(var(--border));
+}
+@keyframes qa-story-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.qa-story-progress {
+  transform-origin: left center;
+  will-change: transform;
+  animation: qa-story-progress var(--qa-story-ms, 6000ms) linear forwards;
+}
+.qa-story-progress[data-paused="true"] {
+  animation-play-state: paused;
+}
+@keyframes qa-sent-pop {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.12); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.qa-sent-pop {
+  animation: qa-sent-pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .qa-sent-pop { animation-duration: 1ms; }
+}

@@ -13525,6 +13525,62 @@
           "default": null,
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "space",
+          "type": "text",
+          "notNull": true,
+          "default": "'root'::text",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "prompt",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "sender_user_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "sender_key",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "is_quarantined",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "quarantine_reason",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "style_masked",
+          "type": "boolean",
+          "notNull": true,
+          "default": "false",
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
@@ -13547,11 +13603,38 @@
           "name": "profile_questions_pkey",
           "kind": "p",
           "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "profile_questions_prompt_check",
+          "kind": "c",
+          "def": "CHECK (((prompt IS NULL) OR ((char_length(prompt) >= 1) AND (char_length(prompt) <= 120))))"
+        },
+        {
+          "name": "profile_questions_quarantine_check",
+          "kind": "c",
+          "def": "CHECK (((quarantine_reason IS NULL) OR (quarantine_reason = ANY (ARRAY['local_mute'::text, 'global_ban'::text, 'muted_by_owner'::text]))))"
+        },
+        {
+          "name": "profile_questions_sender_key_check",
+          "kind": "c",
+          "def": "CHECK (((sender_key IS NULL) OR (sender_key ~ '^[0-9a-f]{64}$'::text)))"
+        },
+        {
+          "name": "profile_questions_sender_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "profile_questions_space_check",
+          "kind": "c",
+          "def": "CHECK ((space = ANY (ARRAY['root'::text, 'alias'::text])))"
         }
       ],
       "indexes": [
+        "CREATE INDEX profile_questions_inbox_idx ON public.profile_questions USING btree (owner_id, space, created_at DESC) WHERE (NOT is_quarantined)",
         "CREATE INDEX profile_questions_owner_idx ON public.profile_questions USING btree (owner_id, created_at DESC)",
         "CREATE INDEX profile_questions_pub_idx ON public.profile_questions USING btree (owner_id, answered_at DESC) WHERE published",
+        "CREATE INDEX profile_questions_sender_idx ON public.profile_questions USING btree (sender_user_id) WHERE (sender_user_id IS NOT NULL)",
         "CREATE INDEX profile_questions_story_idx ON public.profile_questions USING btree (owner_id, story_until) WHERE published"
       ],
       "triggers": [],
@@ -13571,10 +13654,7 @@
       ],
       "grants": {
         "rout_app": [
-          "DELETE",
-          "INSERT",
-          "SELECT",
-          "UPDATE"
+          "DELETE"
         ]
       }
     },
@@ -14991,6 +15071,75 @@
     },
     {
       "schema": "public",
+      "name": "qa_guest_trust",
+      "columns": [
+        {
+          "name": "sender_key",
+          "type": "text",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "trust_score",
+          "type": "integer",
+          "notNull": true,
+          "default": "100",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "ban_starts_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "ban_until",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "qa_guest_trust_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (sender_key)"
+        },
+        {
+          "name": "qa_guest_trust_sender_key_check",
+          "kind": "c",
+          "def": "CHECK ((sender_key ~ '^[0-9a-f]{64}$'::text))"
+        },
+        {
+          "name": "qa_guest_trust_trust_score_check",
+          "kind": "c",
+          "def": "CHECK (((trust_score >= 0) AND (trust_score <= 100)))"
+        }
+      ],
+      "indexes": [],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "public",
       "name": "qr_scans",
       "columns": [
         {
@@ -16369,6 +16518,109 @@
           "INSERT",
           "SELECT",
           "UPDATE"
+        ]
+      }
+    },
+    {
+      "schema": "public",
+      "name": "shadow_mutes",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "recipient_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "muted_sender_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "muted_sender_key",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "shadow_mutes_has_sender",
+          "kind": "c",
+          "def": "CHECK (((muted_sender_id IS NOT NULL) OR (muted_sender_key IS NOT NULL)))"
+        },
+        {
+          "name": "shadow_mutes_muted_sender_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (muted_sender_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "shadow_mutes_muted_sender_key_check",
+          "kind": "c",
+          "def": "CHECK (((muted_sender_key IS NULL) OR (muted_sender_key ~ '^[0-9a-f]{64}$'::text)))"
+        },
+        {
+          "name": "shadow_mutes_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "shadow_mutes_recipient_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "shadow_mutes_recipient_sender_key",
+          "kind": "u",
+          "def": "UNIQUE (recipient_id, muted_sender_id)"
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX shadow_mutes_recipient_device_key ON public.shadow_mutes USING btree (recipient_id, muted_sender_key) WHERE (muted_sender_key IS NOT NULL)"
+      ],
+      "triggers": [
+        "CREATE TRIGGER rout_shadow_mute_trust AFTER INSERT ON public.shadow_mutes FOR EACH ROW EXECUTE FUNCTION rout_shadow_mute_trust()"
+      ],
+      "rls": true,
+      "forceRls": false,
+      "policies": [
+        {
+          "name": "rout_scope",
+          "permissive": true,
+          "roles": [
+            "public"
+          ],
+          "cmd": "ALL",
+          "using": "(recipient_id = rout_current_user_id())",
+          "check": "(recipient_id = rout_current_user_id())"
+        }
+      ],
+      "grants": {
+        "rout_app": [
+          "DELETE"
         ]
       }
     },
@@ -20464,6 +20716,30 @@
           "default": "'public_unrestricted'::qa_permission_level",
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "trust_score",
+          "type": "integer",
+          "notNull": true,
+          "default": "100",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "global_shadow_ban_starts_at",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "global_shadow_ban_until",
+          "type": "timestamp with time zone",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
@@ -20501,6 +20777,11 @@
           "name": "users_pkey",
           "kind": "p",
           "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "users_trust_score_range",
+          "kind": "c",
+          "def": "CHECK (((trust_score >= 0) AND (trust_score <= 100)))"
         }
       ],
       "indexes": [
@@ -23192,6 +23473,30 @@
     },
     {
       "schema": "public",
+      "name": "rout_qa_mute_by_message",
+      "args": "p_message_id uuid",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_mute_by_message(p_message_id uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_me uuid := public.rout_current_user_id();\n  q record;\nbegin\n  if v_me is null then return false; end if;\n  select owner_id, sender_user_id, sender_key into q from public.profile_questions where id = p_message_id;\n  if not found or q.owner_id <> v_me then return false; end if;\n  if q.sender_user_id is not null and q.sender_user_id <> v_me then\n    insert into public.shadow_mutes (recipient_id, muted_sender_id) values (v_me, q.sender_user_id)\n    on conflict (recipient_id, muted_sender_id) do nothing;\n  end if;\n  if q.sender_key is not null then\n    insert into public.shadow_mutes (recipient_id, muted_sender_key) values (v_me, q.sender_key)\n    on conflict (recipient_id, muted_sender_key) where muted_sender_key is not null do nothing;\n  end if;\n  update public.profile_questions\n     set is_quarantined = true, quarantine_reason = 'muted_by_owner', published = false\n   where id = p_message_id;\n  return true;\nend $function$"
+    },
+    {
+      "schema": "public",
+      "name": "rout_qa_owner",
+      "args": "p_handle text, p_space text",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_owner(p_handle text, p_space text)\n RETURNS TABLE(owner_id uuid, prefs jsonb, display_name text, avatar_url text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select p.id, coalesce(p.display_prefs, '{}'::jsonb), p.display_name, p.avatar_url\n    from public.profiles p\n   where p_space = 'root'\n     and lower(p.username) = lower(p_handle)\n     and coalesce((p.display_prefs ->> 'publicProfile')::boolean, true)\n     and coalesce(p.is_banned, false) = false\n     and coalesce(p.is_suspended, false) = false\n     and coalesce(p.status, 'active') not in ('frozen', 'banned', 'suspended')\n  union all\n  select a.user_id, coalesce(a.display_prefs, '{}'::jsonb), a.display_name, a.avatar_url\n    from public.alias_profiles a\n    join public.profiles p on p.id = a.user_id\n   where p_space = 'alias'\n     and lower(a.handle) = lower(p_handle)\n     and a.enabled\n     and coalesce((a.display_prefs ->> 'publicProfile')::boolean, true)\n     and coalesce(p.is_banned, false) = false\n     and coalesce(p.is_suspended, false) = false\n     and coalesce(p.status, 'active') not in ('frozen', 'banned', 'suspended')\n   limit 1\n$function$"
+    },
+    {
+      "schema": "public",
+      "name": "rout_qa_public",
+      "args": "p_handle text, p_space text",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_public(p_handle text, p_space text)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare o record;\nbegin\n  select * into o from public.rout_qa_owner(p_handle, p_space);\n  if o.owner_id is null then return null; end if;\n  return jsonb_build_object(\n    'accepting', coalesce((o.prefs ->> 'questionsEnabled')::boolean, true),\n    'onHub', coalesce((o.prefs ->> 'qaOnHub')::boolean, true),\n    'page', coalesce((o.prefs ->> 'qaPage')::boolean, false),\n    'promptKey', o.prefs ->> 'qaPrompt',\n    'promptCustom', o.prefs ->> 'qaPromptCustom',\n    'displayName', o.display_name,\n    'avatarUrl', o.avatar_url,\n    -- 0174 may not be applied yet: read the level through to_jsonb so a missing column reads as null.\n    'qaLevel', (select to_jsonb(u) ->> 'qa_permission_level' from public.users u where u.id = o.owner_id),\n    'answers', coalesce((\n      select jsonb_agg(jsonb_build_object('id', q.id, 'body', q.body, 'answer', q.answer, 'prompt', q.prompt,\n                                          'answeredAt', q.answered_at, 'storyUntil', q.story_until) order by q.answered_at desc)\n        from (select * from public.profile_questions q\n               where q.owner_id = o.owner_id and q.space = p_space and q.published\n                 and q.answer is not null and not q.is_quarantined\n               order by q.answered_at desc limit 30) q\n    ), '[]'::jsonb)\n  );\nend $function$"
+    },
+    {
+      "schema": "public",
+      "name": "rout_qa_submit",
+      "args": "p_handle text, p_space text, p_body text, p_sender_key text, p_masked boolean",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_submit(p_handle text, p_space text, p_body text, p_sender_key text, p_masked boolean)\n RETURNS text\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  o record;\n  v_sender uuid := public.rout_current_user_id();\n  v_key text := case when p_sender_key ~ '^[0-9a-f]{64}$' then p_sender_key end;\n  v_prompt text;\n  v_reason text;\nbegin\n  if p_space not in ('root', 'alias') then return 'not_found'; end if;\n  if p_body is null or char_length(p_body) not between 1 and 300 then return 'invalid'; end if;\n  select * into o from public.rout_qa_owner(p_handle, p_space);\n  if o.owner_id is null or not coalesce((o.prefs ->> 'questionsEnabled')::boolean, true) then return 'not_found'; end if;\n  v_prompt := nullif(left(btrim(coalesce(\n    case when o.prefs ->> 'qaPrompt' = 'custom' then o.prefs ->> 'qaPromptCustom' end,\n    o.prefs ->> 'qaPrompt')), 120), '');\n\n  if exists (select 1 from public.shadow_mutes m\n              where m.recipient_id = o.owner_id\n                and ((v_sender is not null and m.muted_sender_id = v_sender)\n                  or (v_key is not null and m.muted_sender_key = v_key))) then\n    v_reason := 'local_mute';\n  elsif exists (select 1 from public.users u\n                 where u.id = v_sender and u.global_shadow_ban_starts_at <= now() and u.global_shadow_ban_until > now())\n     or exists (select 1 from public.profiles p where p.id = v_sender and coalesce(p.is_shadowbanned, false))\n     or exists (select 1 from public.qa_guest_trust g\n                 where g.sender_key = v_key and g.ban_starts_at <= now() and g.ban_until > now()) then\n    v_reason := 'global_ban';\n  end if;\n\n  insert into public.profile_questions (owner_id, space, body, prompt, sender_user_id, sender_key, is_quarantined, quarantine_reason, style_masked)\n       values (o.owner_id, p_space, p_body, v_prompt, v_sender, v_key, v_reason is not null, v_reason, coalesce(p_masked, false));\n  return 'ok';\nend $function$"
+    },
+    {
+      "schema": "public",
       "name": "rout_record_signup_age",
       "args": "p_email text, p_dob date, p_parent_email text, p_token_hash text",
       "def": "CREATE OR REPLACE FUNCTION public.rout_record_signup_age(p_email text, p_dob date, p_parent_email text, p_token_hash text)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare v_id uuid; v_minor boolean;\nbegin\n  select id into v_id from public.users\n   where lower(email) = lower(p_email) and date_of_birth is null and created_at > now() - interval '15 minutes'\n   limit 1;\n  if v_id is null then return null; end if;\n  v_minor := p_dob > (current_date - interval '16 years');\n  update public.users\n     set date_of_birth = p_dob,\n         parent_email = case when v_minor then lower(p_parent_email) else null end,\n         parent_consent_status = case when v_minor then 'pending'::public.parent_consent_status else 'none' end\n   where id = v_id;\n  if v_minor and p_token_hash is not null then\n    insert into public.parent_authorizations (user_id, token, action_type, expires_at)\n    values (v_id, p_token_hash, 'consent', now() + interval '30 days');\n  end if;\n  return v_id;\nend $function$"
@@ -23201,6 +23506,12 @@
       "name": "rout_resolve_account",
       "args": "p_identifier text",
       "def": "CREATE OR REPLACE FUNCTION public.rout_resolve_account(p_identifier text)\n RETURNS TABLE(user_id uuid, email text, username text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select u.id, u.email, p.username from public.users u left join public.profiles p on p.id = u.id\n  where public.rout_current_user_id() is not null and u.account_status = 'active'\n    and (lower(p.username) = lower(ltrim(p_identifier, '@')) or u.email_normalized = lower(p_identifier))\n  limit 1 $function$"
+    },
+    {
+      "schema": "public",
+      "name": "rout_shadow_mute_trust",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_shadow_mute_trust()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_score integer;\n  v_start timestamptz := now() + make_interval(mins => 720 + floor(random() * 2161)::int);\nbegin\n  if new.muted_sender_id is not null then\n    update public.users u\n       set trust_score = greatest(0, u.trust_score - 20)\n     where u.id = new.muted_sender_id\n     returning u.trust_score into v_score;\n    if v_score is not null and v_score < 50 then\n      update public.users u\n         set global_shadow_ban_starts_at = v_start,\n             global_shadow_ban_until = v_start + interval '7 days'\n       where u.id = new.muted_sender_id\n         and (u.global_shadow_ban_until is null or u.global_shadow_ban_until < now());\n    end if;\n  elsif new.muted_sender_key is not null then\n    insert into public.qa_guest_trust as g (sender_key, trust_score)\n         values (new.muted_sender_key, 80)\n    on conflict (sender_key) do update\n         set trust_score = greatest(0, g.trust_score - 20), updated_at = now()\n    returning g.trust_score into v_score;\n    if v_score < 50 then\n      update public.qa_guest_trust g\n         set ban_starts_at = v_start, ban_until = v_start + interval '7 days', updated_at = now()\n       where g.sender_key = new.muted_sender_key\n         and (g.ban_until is null or g.ban_until < now());\n    end if;\n  end if;\n  return new;\nend $function$"
     },
     {
       "schema": "public",

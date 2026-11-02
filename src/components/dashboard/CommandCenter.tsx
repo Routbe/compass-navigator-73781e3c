@@ -28,6 +28,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { QaInbox } from "@/components/qa/QaInbox";
 import { BrandLoader } from "@/components/BrandLoader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -376,7 +377,7 @@ function SystemPulse({ items }: { items: { label: string; to: string }[] }) {
   );
 }
 
-type WidgetId = "relays" | "hub" | "qr" | "inbox" | "agenda" | "social";
+type WidgetId = "relays" | "hub" | "qr" | "inbox" | "agenda" | "social" | "qa";
 const WIDGET_LABEL: Record<WidgetId, string> = {
   relays: "Identity Relays",
   hub: "Profiel Hub",
@@ -384,6 +385,7 @@ const WIDGET_LABEL: Record<WidgetId, string> = {
   inbox: "Unified Inbox",
   agenda: "Agenda",
   social: "Social & Prikbord",
+  qa: "Anonieme Inbox",
 };
 
 /** Hidden widgets per device; the foundation for a rearrangeable board. */
@@ -540,6 +542,14 @@ export function CommandCenter() {
                 title={plural(c.guestbook30d, "prikbord-bericht", "prikbord-berichten")}
                 hint="Laatste 30 dagen · beheer je Mastodon/Bluesky feed op je hub."
               />
+            </Slot>
+          ) : null}
+
+          {c?.openQuestions ? (
+            <Slot id="qa" className="sm:col-span-2" {...slot("qa")}>
+              <Widget icon={MessageCircleQuestion} eyebrow="Anonieme Inbox" title={plural(c.openQuestions, "open bericht", "open berichten")} hint="Beantwoorden, delen als story of de afzender onzichtbaar dempen.">
+                <QaInbox space={null} limit={3} compact />
+              </Widget>
             </Slot>
           ) : null}
 

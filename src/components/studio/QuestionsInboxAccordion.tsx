@@ -1,90 +1,127 @@
+import { useMemo, useState } from "react";
+import { ExternalLink, ShieldCheck, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
-import { EyeOff, Send, Trash2 } from "lucide-react";
-import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { answerMyQuestion, deleteMyQuestion, getMyQuestions, setMyQuestionsEnabled, unpublishMyQuestion } from "@/lib/questions.functions";
-import { ANSWER_MAX } from "@/lib/questions-rules";
+import { QA_PROMPT_CUSTOM_MAX, QA_PROMPT_KEYS, promptHeadline, type QaPromptKey } from "@/lib/qa/prompts";
+import { QaInbox } from "@/components/qa/QaInbox";
+import { QaShareDialog } from "@/components/qa/QaShareDialog";
+import { qaPaths, type QaSpace } from "@/components/qa/useQaPublic";
+import { cn } from "@/lib/utils";
+import type { ProfileDisplayPrefs } from "@/lib/profile-display";
 import { StudioSectionIcon } from "./StudioSectionIcon";
 
-/** Studio inbox: anonymous questions; answering + t("studio.questions.publish") puts them on the public profile. */
-export function QuestionsInboxAccordion({ enabled, onEnabledChange }: { enabled: boolean; onEnabledChange: (enabled: boolean) => void }) {
-  const { t, locale } = useI18n();
-  const qc = useQueryClient();
-  const fetchMine = useServerFn(getMyQuestions);
-  const answer = useServerFn(answerMyQuestion);
-  const unpublish = useServerFn(unpublishMyQuestion);
-  const del = useServerFn(deleteMyQuestion);
-  const setEnabled = useServerFn(setMyQuestionsEnabled);
-  const q = useQuery({ queryKey: ["my-questions"], queryFn: () => fetchMine(), retry: false });
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const items = q.data?.questions ?? [];
-  const open = items.filter((i) => !i.published).length;
-  const refresh = () => qc.invalidateQueries({ queryKey: ["my-questions"] });
+export type QaPrefs = Pick<ProfileDisplayPrefs, "questionsEnabled" | "qaPrompt" | "qaPromptCustom" | "qaOnHub" | "qaPage">;
 
-  const publish = async (id: string) => {
-    const text = drafts[id] ?? items.find((i) => i.id === id)?.answer ?? "";
-    const { result } = await answer({ data: { id, answer: text, publish: true } });
-    if (result === "ok") {
-      toast.success(t("studio.questions.published"));
-      void refresh();
-    } else toast.error(t("studio.questions.required"));
-  };
+/**
+ * Studio: anonymous Q&A for one canvas — accept on/off, hub block and/or a
+ * dedicated /ask page, the NGL-style prompt, the story-card generator and the
+ * Void Inbox. Settings are profile prefs, so they go live on publish.
+ */
+export function QuestionsInboxAccordion({ space, handle, displayName, avatarUrl, prefs, onPref }: {
+  space: QaSpace;
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  prefs: QaPrefs;
+  onPref: <K extends keyof QaPrefs>(key: K, value: QaPrefs[K]) => void;
+}) {
+  const { t } = useI18n();
+  const [shareOpen, setShareOpen] = useState(false);
+  const headline = promptHeadline(prefs.qaPrompt, prefs.qaPromptCustom, t);
+  const paths = handle ? qaPaths(handle, space) : null;
+  const keys: QaPromptKey[] = [...QA_PROMPT_KEYS, "custom"];
+  const shareTarget = useMemo(() => (shareOpen ? { kind: "prompt" as const, prompt: headline } : null), [shareOpen, headline]);
+
+  const row = (label: string, help: string, checked: boolean, onChange: (v: boolean) => void, disabled = false) => (
+    <label className={cn("flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm", disabled && "opacity-60")}>
+      <span className="min-w-0">
+        <span className="block font-medium">{label}</span>
+        <span className="block text-xs text-muted-foreground">{help}</span>
+      </span>
+      <Switch checked={checked} onCheckedChange={onChange} disabled={disabled} aria-label={label} />
+    </label>
+  );
 
   return (
-    <details className="border-t border-border pt-4">
+    <details className="border-t border-border pt-4" id="studio-qa">
       <summary className="flex min-h-11 cursor-pointer items-center gap-2">
         <StudioSectionIcon kind="questions" />
         <span className="min-w-0 flex-1 text-left">
-          <span className="block text-sm font-medium">{t("studio.questions.title")}</span>
-          <span className="block text-xs text-muted-foreground">{t("studio.questions.counts", { total: items.length, open })}</span>
+          <span className="block text-sm font-medium">{t("pages.qa.inbox.title")}</span>
+          <span className="block truncate text-xs text-muted-foreground">{headline}</span>
         </span>
       </summary>
       <div className="space-y-3 py-3">
-        <label className="flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm">
-          <span>
-            <span className="block font-medium">{t("studio.questions.onProfile")}</span>
-            <span className="block text-xs text-muted-foreground">{t("studio.questions.help")}</span>
-          </span>
-          <Switch
-            checked={enabled}
-            onCheckedChange={onEnabledChange}
-            aria-label={t("studio.questions.onProfile")}
-          />
-        </label>
-        {items.length === 0 && <p className="text-xs text-muted-foreground">{t("studio.questions.empty")}</p>}
-        {items.map((it) => (
-          <div key={it.id} className={`space-y-2 rounded-xl border p-3 ${it.published ? "border-primary/50 bg-primary/5" : "border-border"}`}>
-            <div className="flex items-start gap-2">
-              <p className="min-w-0 flex-1 break-words text-sm font-medium">{it.body}</p>
-              <button type="button" aria-label={t("studio.questions.delete")} className="text-muted-foreground hover:text-destructive" onClick={async () => { await del({ data: { id: it.id } }); void refresh(); }}>
-                <Trash2 className="h-4 w-4" />
+        {row(t("pages.qa.settings.accepting"), t("pages.qa.settings.acceptingHelp"), prefs.questionsEnabled, (v) => onPref("questionsEnabled", v))}
+        {row(t("pages.qa.settings.onHub"), t("pages.qa.settings.onHubHelp"), prefs.qaOnHub, (v) => onPref("qaOnHub", v), !prefs.questionsEnabled)}
+        {row(
+          t("pages.qa.settings.page"),
+          t("pages.qa.settings.pageHelp", { path: paths ? `rout.be${paths.ask}` : "/ask" }),
+          prefs.qaPage,
+          (v) => onPref("qaPage", v),
+          !prefs.questionsEnabled,
+        )}
+
+        <fieldset className="space-y-2 rounded-xl border border-border p-3">
+          <legend className="px-1 text-sm font-medium">{t("pages.qa.settings.prompt")}</legend>
+          <div className="flex flex-wrap gap-1.5">
+            {keys.map((k) => (
+              <button
+                key={k}
+                type="button"
+                onClick={() => onPref("qaPrompt", k)}
+                aria-pressed={prefs.qaPrompt === k}
+                className={cn(
+                  "min-h-9 rounded-full border px-3 text-xs transition-colors",
+                  prefs.qaPrompt === k ? "border-story-ring bg-story-ring/15 text-foreground" : "border-border text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t(`pages.qa.prompt.${k}`)}
               </button>
-            </div>
-            <p className="text-[11px] text-muted-foreground">{new Date(it.createdAt).toLocaleString(locale)}</p>
-            <textarea
-              value={drafts[it.id] ?? it.answer ?? ""}
-              onChange={(e) => setDrafts((d) => ({ ...d, [it.id]: e.target.value.slice(0, ANSWER_MAX) }))}
-              rows={2}
-              placeholder={t("studio.questions.placeholder")}
-              aria-label={t("studio.questions.answer")}
-              className="w-full resize-none rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-            />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={() => publish(it.id)}><Send className="mr-1 h-3.5 w-3.5" />{it.published ? t("studio.questions.update") : t("studio.questions.publish")}</Button>
-              {it.published && (
-                <Button size="sm" variant="outline" onClick={async () => { await unpublish({ data: { id: it.id } }); void refresh(); }}>
-                  <EyeOff className="mr-1 h-3.5 w-3.5" />{t("studio.questions.hide")}
-                </Button>
-              )}
-            </div>
+            ))}
           </div>
-        ))}
+          {prefs.qaPrompt === "custom" && (
+            <input
+              value={prefs.qaPromptCustom ?? ""}
+              onChange={(e) => onPref("qaPromptCustom", e.target.value.slice(0, QA_PROMPT_CUSTOM_MAX) || null)}
+              maxLength={QA_PROMPT_CUSTOM_MAX}
+              placeholder={t("pages.qa.settings.customPlaceholder")}
+              aria-label={t("pages.qa.settings.customPlaceholder")}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+            />
+          )}
+          <p className="text-[11px] text-muted-foreground">{t("pages.qa.settings.publishHint")}</p>
+        </fieldset>
+
+        {paths && (
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" className="gap-1.5" onClick={() => setShareOpen(true)}>
+              <Sparkles className="h-3.5 w-3.5" aria-hidden />{t("pages.qa.settings.shareCard")}
+            </Button>
+            <Button asChild size="sm" variant="outline" className="gap-1.5">
+              <a href={prefs.qaPage ? paths.ask : paths.profile} target="_blank" rel="noreferrer"><ExternalLink className="h-3.5 w-3.5" aria-hidden />rout.be{prefs.qaPage ? paths.ask : paths.profile}</a>
+            </Button>
+          </div>
+        )}
+
+        <p className="flex items-start gap-2 rounded-xl bg-muted/60 p-3 text-xs text-muted-foreground">
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />{t("pages.qa.settings.safety")}
+        </p>
+
+        <QaInbox space={space} />
       </div>
+      {handle && (
+        <QaShareDialog
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          target={shareTarget}
+          handle={handle}
+          space={space}
+          displayName={displayName}
+          avatarUrl={avatarUrl}
+        />
+      )}
     </details>
   );
 }

@@ -1,3 +1,4 @@
+import { cleanCustomPrompt, resolvePromptKey } from "@/lib/qa/prompts";
 import {
   normalizeBubbleFont,
   normalizeBubblePosition,
@@ -157,6 +158,13 @@ export interface ProfileDisplayPrefs {
   timelineVisible: boolean;
   /** Anonieme vragen-blok op het profiel tonen en vragen aannemen. */
   questionsEnabled: boolean;
+  /** NGL-style headline prompt key for the Q&A ("custom" uses qaPromptCustom). */
+  qaPrompt: string;
+  qaPromptCustom: string | null;
+  /** Q&A block on the profile hub. */
+  qaOnHub: boolean;
+  /** Dedicated /ask page. */
+  qaPage: boolean;
   guestbookEnabled: boolean;
   /** Steam live card on the profile (opt-in). */
   steamPresence: boolean;
@@ -260,6 +268,10 @@ export const DEFAULT_DISPLAY_PREFS: ProfileDisplayPrefs = {
   contextToggle: false,
   timelineVisible: true,
   questionsEnabled: true,
+  qaPrompt: "anything",
+  qaPromptCustom: null,
+  qaOnHub: true,
+  qaPage: false,
   guestbookEnabled: false,
   steamPresence: false,
   lastfmPresence: false,
@@ -456,6 +468,10 @@ export function parseDisplayPrefs(raw: unknown): ProfileDisplayPrefs {
     contextToggle: r["contextToggle"] === true,
     timelineVisible: r["timelineVisible"] === undefined ? true : Boolean(r["timelineVisible"]),
     questionsEnabled: r["questionsEnabled"] !== false,
+    qaPrompt: resolvePromptKey(r["qaPrompt"]),
+    qaPromptCustom: cleanCustomPrompt(r["qaPromptCustom"]),
+    qaOnHub: r["qaOnHub"] !== false,
+    qaPage: r["qaPage"] === true,
     guestbookEnabled: r["guestbookEnabled"] === true,
     steamPresence: r["steamPresence"] === true,
     lastfmPresence: r["lastfmPresence"] === true,
