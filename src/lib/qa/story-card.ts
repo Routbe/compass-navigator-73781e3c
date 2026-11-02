@@ -155,8 +155,7 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
 
   let y = STORY_SAFE_TOP + 40;
   const avatarR = input.kind === "prompt" ? 120 : 84;
-  if (withAvatar) await drawAvatar(ctx, input.avatarSrc, name, STORY_W / 2, y + avatarR, avatarR, family);
-  else await drawAvatar(ctx, null, name, STORY_W / 2, y + avatarR, avatarR, family);
+  await drawAvatar(ctx, withAvatar ? input.avatarSrc : null, name, STORY_W / 2, y + avatarR, avatarR, family);
   y += avatarR * 2 + 76;
   ctx.fillStyle = token("--story-card");
   ctx.font = `600 44px ${family}`;
