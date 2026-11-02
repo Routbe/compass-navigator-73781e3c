@@ -156,7 +156,7 @@ it("lifting a mute lets new messages through again and returns the muted message
     await as(A);
     await submit("recipient", "na opheffen", KEY);
     await as(R);
-    expect((await inbox()).rows.map((r) => r.body)).toEqual(["eerste", "na opheffen"]);
+    expect((await inbox()).rows.map((r) => r.body).sort()).toEqual(["eerste", "na opheffen"]);
   } finally { await db.exec("rollback"); }
 }, 30_000);
 

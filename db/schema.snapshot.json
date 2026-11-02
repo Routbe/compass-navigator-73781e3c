@@ -15140,6 +15140,152 @@
     },
     {
       "schema": "public",
+      "name": "qa_mute_actions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "notNull": true,
+          "default": "gen_random_uuid()",
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "recipient_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "source_question_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "qa_mute_actions_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "qa_mute_actions_recipient_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "qa_mute_actions_source_question_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (source_question_id) REFERENCES profile_questions(id) ON DELETE SET NULL"
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX qa_mute_actions_recipient_idx ON public.qa_mute_actions USING btree (recipient_id, created_at DESC)",
+        "CREATE UNIQUE INDEX qa_mute_actions_source_key ON public.qa_mute_actions USING btree (recipient_id, source_question_id) WHERE (source_question_id IS NOT NULL)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "public",
+      "name": "qa_trust_charges",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "notNull": true,
+          "default": null,
+          "identity": "a",
+          "generated": null
+        },
+        {
+          "name": "recipient_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "sender_user_id",
+          "type": "uuid",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "sender_key",
+          "type": "text",
+          "notNull": false,
+          "default": null,
+          "identity": null,
+          "generated": null
+        },
+        {
+          "name": "charged_at",
+          "type": "timestamp with time zone",
+          "notNull": true,
+          "default": "now()",
+          "identity": null,
+          "generated": null
+        }
+      ],
+      "constraints": [
+        {
+          "name": "qa_trust_charges_one_sender",
+          "kind": "c",
+          "def": "CHECK ((num_nonnulls(sender_user_id, sender_key) = 1))"
+        },
+        {
+          "name": "qa_trust_charges_pkey",
+          "kind": "p",
+          "def": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "qa_trust_charges_recipient_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "qa_trust_charges_sender_key_check",
+          "kind": "c",
+          "def": "CHECK (((sender_key IS NULL) OR (sender_key ~ '^[0-9a-f]{64}$'::text)))"
+        },
+        {
+          "name": "qa_trust_charges_sender_user_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE CASCADE"
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX qa_trust_charges_account ON public.qa_trust_charges USING btree (recipient_id, sender_user_id) WHERE (sender_user_id IS NOT NULL)",
+        "CREATE UNIQUE INDEX qa_trust_charges_device ON public.qa_trust_charges USING btree (recipient_id, sender_key) WHERE (sender_key IS NOT NULL)"
+      ],
+      "triggers": [],
+      "rls": true,
+      "forceRls": false,
+      "policies": [],
+      "grants": {}
+    },
+    {
+      "schema": "public",
       "name": "qr_scans",
       "columns": [
         {
@@ -16564,9 +16710,22 @@
           "default": "now()",
           "identity": null,
           "generated": null
+        },
+        {
+          "name": "action_id",
+          "type": "uuid",
+          "notNull": true,
+          "default": null,
+          "identity": null,
+          "generated": null
         }
       ],
       "constraints": [
+        {
+          "name": "shadow_mutes_action_id_fkey",
+          "kind": "f",
+          "def": "FOREIGN KEY (action_id) REFERENCES qa_mute_actions(id) ON DELETE CASCADE"
+        },
         {
           "name": "shadow_mutes_has_sender",
           "kind": "c",
@@ -16591,15 +16750,13 @@
           "name": "shadow_mutes_recipient_id_fkey",
           "kind": "f",
           "def": "FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE"
-        },
-        {
-          "name": "shadow_mutes_recipient_sender_key",
-          "kind": "u",
-          "def": "UNIQUE (recipient_id, muted_sender_id)"
         }
       ],
       "indexes": [
-        "CREATE UNIQUE INDEX shadow_mutes_recipient_device_key ON public.shadow_mutes USING btree (recipient_id, muted_sender_key) WHERE (muted_sender_key IS NOT NULL)"
+        "CREATE INDEX shadow_mutes_recipient_account_idx ON public.shadow_mutes USING btree (recipient_id, muted_sender_id) WHERE (muted_sender_id IS NOT NULL)",
+        "CREATE INDEX shadow_mutes_recipient_device_idx ON public.shadow_mutes USING btree (recipient_id, muted_sender_key) WHERE (muted_sender_key IS NOT NULL)",
+        "CREATE UNIQUE INDEX shadow_mutes_action_account ON public.shadow_mutes USING btree (action_id, muted_sender_id) WHERE (muted_sender_id IS NOT NULL)",
+        "CREATE UNIQUE INDEX shadow_mutes_action_device ON public.shadow_mutes USING btree (action_id, muted_sender_key) WHERE (muted_sender_key IS NOT NULL)"
       ],
       "triggers": [
         "CREATE TRIGGER rout_shadow_mute_trust AFTER INSERT ON public.shadow_mutes FOR EACH ROW EXECUTE FUNCTION rout_shadow_mute_trust()"
@@ -16618,11 +16775,7 @@
           "check": "(recipient_id = rout_current_user_id())"
         }
       ],
-      "grants": {
-        "rout_app": [
-          "DELETE"
-        ]
-      }
+      "grants": {}
     },
     {
       "schema": "public",
@@ -23475,7 +23628,13 @@
       "schema": "public",
       "name": "rout_qa_mute_by_message",
       "args": "p_message_id uuid",
-      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_mute_by_message(p_message_id uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_me uuid := public.rout_current_user_id();\n  q record;\nbegin\n  if v_me is null then return false; end if;\n  select owner_id, sender_user_id, sender_key into q from public.profile_questions where id = p_message_id;\n  if not found or q.owner_id <> v_me then return false; end if;\n  if q.sender_user_id is not null and q.sender_user_id <> v_me then\n    insert into public.shadow_mutes (recipient_id, muted_sender_id) values (v_me, q.sender_user_id)\n    on conflict (recipient_id, muted_sender_id) do nothing;\n  end if;\n  if q.sender_key is not null then\n    insert into public.shadow_mutes (recipient_id, muted_sender_key) values (v_me, q.sender_key)\n    on conflict (recipient_id, muted_sender_key) where muted_sender_key is not null do nothing;\n  end if;\n  update public.profile_questions\n     set is_quarantined = true, quarantine_reason = 'muted_by_owner', published = false\n   where id = p_message_id;\n  return true;\nend $function$"
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_mute_by_message(p_message_id uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_me uuid := public.rout_current_user_id();\n  q record;\n  v_action uuid;\nbegin\n  if v_me is null then return false; end if;\n  select owner_id, sender_user_id, sender_key into q from public.profile_questions where id = p_message_id;\n  if not found or q.owner_id <> v_me then return false; end if;\n  if exists (select 1 from public.qa_mute_actions a where a.recipient_id = v_me and a.source_question_id = p_message_id) then\n    return true;\n  end if;\n  insert into public.qa_mute_actions (recipient_id, source_question_id) values (v_me, p_message_id) returning id into v_action;\n  if q.sender_user_id is not null and q.sender_user_id <> v_me then\n    insert into public.shadow_mutes (recipient_id, action_id, muted_sender_id) values (v_me, v_action, q.sender_user_id);\n  end if;\n  if q.sender_key is not null then\n    insert into public.shadow_mutes (recipient_id, action_id, muted_sender_key) values (v_me, v_action, q.sender_key);\n  end if;\n  update public.profile_questions\n     set is_quarantined = true, quarantine_reason = 'muted_by_owner', published = false\n   where id = p_message_id;\n  return true;\nend $function$"
+    },
+    {
+      "schema": "public",
+      "name": "rout_qa_my_mutes",
+      "args": "",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_my_mutes()\n RETURNS TABLE(id uuid, muted_at timestamp with time zone, excerpt text, space text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select a.id, a.created_at, left(q.body, 140), q.space\n    from public.qa_mute_actions a\n    left join public.profile_questions q on q.id = a.source_question_id and q.owner_id = a.recipient_id\n   where a.recipient_id = public.rout_current_user_id()\n   order by a.created_at desc\n   limit 500\n$function$"
     },
     {
       "schema": "public",
@@ -23497,6 +23656,12 @@
     },
     {
       "schema": "public",
+      "name": "rout_qa_unmute",
+      "args": "p_action_id uuid",
+      "def": "CREATE OR REPLACE FUNCTION public.rout_qa_unmute(p_action_id uuid)\n RETURNS boolean\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_me uuid := public.rout_current_user_id();\n  v_source uuid;\nbegin\n  if v_me is null then return false; end if;\n  delete from public.qa_mute_actions where id = p_action_id and recipient_id = v_me\n  returning source_question_id into v_source;\n  if not found then return false; end if;\n  if v_source is not null then\n    update public.profile_questions\n       set is_quarantined = false, quarantine_reason = null\n     where id = v_source and owner_id = v_me and quarantine_reason = 'muted_by_owner';\n  end if;\n  return true;\nend $function$"
+    },
+    {
+      "schema": "public",
       "name": "rout_record_signup_age",
       "args": "p_email text, p_dob date, p_parent_email text, p_token_hash text",
       "def": "CREATE OR REPLACE FUNCTION public.rout_record_signup_age(p_email text, p_dob date, p_parent_email text, p_token_hash text)\n RETURNS uuid\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare v_id uuid; v_minor boolean;\nbegin\n  select id into v_id from public.users\n   where lower(email) = lower(p_email) and date_of_birth is null and created_at > now() - interval '15 minutes'\n   limit 1;\n  if v_id is null then return null; end if;\n  v_minor := p_dob > (current_date - interval '16 years');\n  update public.users\n     set date_of_birth = p_dob,\n         parent_email = case when v_minor then lower(p_parent_email) else null end,\n         parent_consent_status = case when v_minor then 'pending'::public.parent_consent_status else 'none' end\n   where id = v_id;\n  if v_minor and p_token_hash is not null then\n    insert into public.parent_authorizations (user_id, token, action_type, expires_at)\n    values (v_id, p_token_hash, 'consent', now() + interval '30 days');\n  end if;\n  return v_id;\nend $function$"
@@ -23511,7 +23676,7 @@
       "schema": "public",
       "name": "rout_shadow_mute_trust",
       "args": "",
-      "def": "CREATE OR REPLACE FUNCTION public.rout_shadow_mute_trust()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_score integer;\n  v_start timestamptz := now() + make_interval(mins => 720 + floor(random() * 2161)::int);\nbegin\n  if new.muted_sender_id is not null then\n    update public.users u\n       set trust_score = greatest(0, u.trust_score - 20)\n     where u.id = new.muted_sender_id\n     returning u.trust_score into v_score;\n    if v_score is not null and v_score < 50 then\n      update public.users u\n         set global_shadow_ban_starts_at = v_start,\n             global_shadow_ban_until = v_start + interval '7 days'\n       where u.id = new.muted_sender_id\n         and (u.global_shadow_ban_until is null or u.global_shadow_ban_until < now());\n    end if;\n  elsif new.muted_sender_key is not null then\n    insert into public.qa_guest_trust as g (sender_key, trust_score)\n         values (new.muted_sender_key, 80)\n    on conflict (sender_key) do update\n         set trust_score = greatest(0, g.trust_score - 20), updated_at = now()\n    returning g.trust_score into v_score;\n    if v_score < 50 then\n      update public.qa_guest_trust g\n         set ban_starts_at = v_start, ban_until = v_start + interval '7 days', updated_at = now()\n       where g.sender_key = new.muted_sender_key\n         and (g.ban_until is null or g.ban_until < now());\n    end if;\n  end if;\n  return new;\nend $function$"
+      "def": "CREATE OR REPLACE FUNCTION public.rout_shadow_mute_trust()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_score integer;\n  v_new integer;\n  v_start timestamptz := now() + make_interval(mins => 720 + floor(random() * 2161)::int);\nbegin\n  if new.muted_sender_id is not null then\n    insert into public.qa_trust_charges (recipient_id, sender_user_id) values (new.recipient_id, new.muted_sender_id)\n    on conflict (recipient_id, sender_user_id) where sender_user_id is not null do nothing;\n    get diagnostics v_new = row_count;\n    if v_new = 0 then return new; end if;\n    update public.users u\n       set trust_score = greatest(0, u.trust_score - 20)\n     where u.id = new.muted_sender_id\n     returning u.trust_score into v_score;\n    if v_score is not null and v_score < 50 then\n      update public.users u\n         set global_shadow_ban_starts_at = v_start,\n             global_shadow_ban_until = v_start + interval '7 days'\n       where u.id = new.muted_sender_id\n         and (u.global_shadow_ban_until is null or u.global_shadow_ban_until < now());\n    end if;\n  elsif new.muted_sender_key is not null then\n    insert into public.qa_trust_charges (recipient_id, sender_key) values (new.recipient_id, new.muted_sender_key)\n    on conflict (recipient_id, sender_key) where sender_key is not null do nothing;\n    get diagnostics v_new = row_count;\n    if v_new = 0 then return new; end if;\n    insert into public.qa_guest_trust as g (sender_key, trust_score)\n         values (new.muted_sender_key, 80)\n    on conflict (sender_key) do update\n         set trust_score = greatest(0, g.trust_score - 20), updated_at = now()\n    returning g.trust_score into v_score;\n    if v_score < 50 then\n      update public.qa_guest_trust g\n         set ban_starts_at = v_start, ban_until = v_start + interval '7 days', updated_at = now()\n       where g.sender_key = new.muted_sender_key\n         and (g.ban_until is null or g.ban_until < now());\n    end if;\n  end if;\n  return new;\nend $function$"
     },
     {
       "schema": "public",

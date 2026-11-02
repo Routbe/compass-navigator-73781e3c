@@ -1456,6 +1456,21 @@ export interface PublicQaGuestTrustRow {
   "updated_at": string | Date;
 }
 
+export interface PublicQaMuteActionsRow {
+  "id": string;
+  "recipient_id": string;
+  "source_question_id": string | null;
+  "created_at": string | Date;
+}
+
+export interface PublicQaTrustChargesRow {
+  "id": string;
+  "recipient_id": string;
+  "sender_user_id": string | null;
+  "sender_key": string | null;
+  "charged_at": string | Date;
+}
+
 export interface PublicQrScansRow {
   "id": string;
   "tracked_qr_id": string;
@@ -1597,6 +1612,7 @@ export interface PublicShadowMutesRow {
   "muted_sender_id": string | null;
   "muted_sender_key": string | null;
   "created_at": string | Date;
+  "action_id": string;
 }
 
 export interface PublicSharedFilesRow {
@@ -2308,6 +2324,8 @@ export interface DbTables {
   "public.psp_credentials": PublicPspCredentialsRow;
   "public.public_activity": PublicPublicActivityRow;
   "public.qa_guest_trust": PublicQaGuestTrustRow;
+  "public.qa_mute_actions": PublicQaMuteActionsRow;
+  "public.qa_trust_charges": PublicQaTrustChargesRow;
   "public.qr_scans": PublicQrScansRow;
   "public.rate_limits": PublicRateLimitsRow;
   "public.referrals": PublicReferralsRow;
