@@ -18,5 +18,5 @@
 - [x] Green status ring + story viewer for answers (24 h)
 - [x] Story card generator + share (Instagram/Snapchat/WhatsApp)
 - [x] Void Inbox in Studio + Command Center
-- [ ] Settings list to lift mutes (future, per the brief)
+- [x] Settings list to lift mutes (db/0176, applied to Neon)
 - [ ] Ghost Mode with the sovereign model: needs SOVEREIGN_AI_BASE_URL / SOVEREIGN_AI_API_KEY
