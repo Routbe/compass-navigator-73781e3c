@@ -128,7 +128,7 @@ export function QaInbox({ space, owners, limit, compact = false }: {
                     <DropdownMenuItem onSelect={() => setReplying(it.id)}><MessageCircleReply className="mr-2 h-4 w-4" />{t("pages.qa.inbox.answer")}</DropdownMenuItem>
                     <DropdownMenuItem
                       disabled={!owner}
-                      onSelect={() => setShare({ space: it.space, target: it.answer ? { kind: "answer", question: it.body, answer: it.answer } : { kind: "answer", question: it.body, answer: drafts[it.id] || "…" } })}
+                      onSelect={() => setShare({ space: it.space, target: { kind: "answer", question: it.body, answer: it.answer ?? "" } })}
                     >
                       <Share2 className="mr-2 h-4 w-4" />{t("pages.qa.inbox.share")}
                     </DropdownMenuItem>

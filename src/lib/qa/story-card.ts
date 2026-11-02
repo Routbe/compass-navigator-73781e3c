@@ -169,7 +169,8 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
   const headH = pad * 2 + labelH + head.lines.length * head.size * 1.18;
   const bodyText = input.kind === "prompt" ? input.sendMe : input.answer;
   const body = fitText(ctx, bodyText, family, input.kind === "prompt" ? 500 : 600, input.kind === "prompt" ? 44 : 56, 34, cardW - pad * 2, input.kind === "prompt" ? 2 : 7);
-  const bodyH = pad * 2 + body.lines.length * body.size * 1.3;
+  const hasBody = bodyText.trim().length > 0;
+  const bodyH = hasBody ? pad * 2 + body.lines.length * body.size * 1.3 : 0;
   const cardH = headH + bodyH;
   const maxBottom = STORY_H - STORY_SAFE_BOTTOM - 210;
   const cardY = Math.min(y + 30, maxBottom - cardH);
@@ -198,9 +199,11 @@ async function paint(input: StoryCardInput, withAvatar: boolean): Promise<Blob> 
   ctx.font = `400 ${head.size}px ${display}`;
   drawLines(ctx, head.lines, STORY_W / 2, ty + head.size, head.size * 1.18);
 
-  ctx.fillStyle = token("--story-ink", input.kind === "prompt" ? 0.55 : 1);
-  ctx.font = `${input.kind === "prompt" ? 500 : 600} ${body.size}px ${family}`;
-  drawLines(ctx, body.lines, STORY_W / 2, cardY + headH + pad + body.size, body.size * 1.3);
+  if (hasBody) {
+    ctx.fillStyle = token("--story-ink", input.kind === "prompt" ? 0.55 : 1);
+    ctx.font = `${input.kind === "prompt" ? 500 : 600} ${body.size}px ${family}`;
+    drawLines(ctx, body.lines, STORY_W / 2, cardY + headH + pad + body.size, body.size * 1.3);
+  }
 
   // Sticker hint + link, then the bunny, all above the bottom safe zone.
   let by = cardY + cardH + 110;
