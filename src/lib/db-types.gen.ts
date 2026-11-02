@@ -1295,6 +1295,13 @@ export interface PublicProfileQuestionsRow {
   "created_at": string | Date;
   "answered_at": string | Date | null;
   "story_until": string | Date | null;
+  "space": string;
+  "prompt": string | null;
+  "sender_user_id": string | null;
+  "sender_key": string | null;
+  "is_quarantined": boolean;
+  "quarantine_reason": string | null;
+  "style_masked": boolean;
 }
 
 export interface PublicProfileVisitsRow {
@@ -1441,6 +1448,14 @@ export interface PublicPublicActivityRow {
   "created_at": string | Date;
 }
 
+export interface PublicQaGuestTrustRow {
+  "sender_key": string;
+  "trust_score": number;
+  "ban_starts_at": string | Date | null;
+  "ban_until": string | Date | null;
+  "updated_at": string | Date;
+}
+
 export interface PublicQrScansRow {
   "id": string;
   "tracked_qr_id": string;
@@ -1573,6 +1588,14 @@ export interface PublicSepaReviewQueueRow {
   "notes": string | null;
   "decided_by": string | null;
   "decided_at": string | Date | null;
+  "created_at": string | Date;
+}
+
+export interface PublicShadowMutesRow {
+  "id": string;
+  "recipient_id": string;
+  "muted_sender_id": string | null;
+  "muted_sender_key": string | null;
   "created_at": string | Date;
 }
 
@@ -1963,6 +1986,9 @@ export interface PublicUsersRow {
   "parent_email": string | null;
   "parent_consent_status": PublicParentConsentStatus;
   "qa_permission_level": PublicQaPermissionLevel;
+  "trust_score": number;
+  "global_shadow_ban_starts_at": string | Date | null;
+  "global_shadow_ban_until": string | Date | null;
 }
 
 export interface PublicVerificationPaymentsRow {
@@ -2281,6 +2307,7 @@ export interface DbTables {
   "public.promo_codes": PublicPromoCodesRow;
   "public.psp_credentials": PublicPspCredentialsRow;
   "public.public_activity": PublicPublicActivityRow;
+  "public.qa_guest_trust": PublicQaGuestTrustRow;
   "public.qr_scans": PublicQrScansRow;
   "public.rate_limits": PublicRateLimitsRow;
   "public.referrals": PublicReferralsRow;
@@ -2294,6 +2321,7 @@ export interface DbTables {
   "public.security_codes": PublicSecurityCodesRow;
   "public.security_events": PublicSecurityEventsRow;
   "public.sepa_review_queue": PublicSepaReviewQueueRow;
+  "public.shadow_mutes": PublicShadowMutesRow;
   "public.shared_files": PublicSharedFilesRow;
   "public.showcase_profiles": PublicShowcaseProfilesRow;
   "public.signin_throttle": PublicSigninThrottleRow;
