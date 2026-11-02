@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isInAppBrowser, systemBrowserUrl } from "./in-app-browser";
+import { isInAppBrowser, shouldShowIosInstallHint, systemBrowserUrl } from "./in-app-browser";
 
 const IG = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Instagram 300.0";
 const SAFARI = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1";
@@ -17,7 +17,6 @@ describe("in-app browser detection", () => {
   });
 });
 
-import { shouldShowIosInstallHint } from "./in-app-browser";
 
 describe("iOS install hint", () => {
   const safari = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
