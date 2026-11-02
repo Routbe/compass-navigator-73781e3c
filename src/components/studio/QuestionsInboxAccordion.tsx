@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { QA_PROMPT_CUSTOM_MAX, QA_PROMPT_KEYS, promptHeadline, type QaPromptKey } from "@/lib/qa/prompts";
 import { QaInbox } from "@/components/qa/QaInbox";
+import { QaMutedList } from "@/components/qa/QaMutedList";
 import { QaShareDialog } from "@/components/qa/QaShareDialog";
 import { qaPaths, type QaSpace } from "@/components/qa/useQaPublic";
 import { cn } from "@/lib/utils";
@@ -110,6 +111,8 @@ export function QuestionsInboxAccordion({ space, handle, displayName, avatarUrl,
         </p>
 
         <QaInbox space={space} />
+
+        <QaMutedList />
       </div>
       {handle && (
         <QaShareDialog
