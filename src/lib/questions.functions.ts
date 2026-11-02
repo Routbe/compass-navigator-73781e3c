@@ -158,3 +158,24 @@ export const getMyQaOwners = createServerFn({ method: "GET" })
       return { owners: {} };
     }
   });
+
+/** The member's own mutes (time + muted message only). */
+export const getMyMutes = createServerFn({ method: "GET" })
+  .middleware([requireAuth])
+  .handler(async () => {
+    const s = await import("./questions.server");
+    try {
+      return { ready: true, mutes: await s.myMutes() };
+    } catch (e) {
+      console.error("[questions] mutes failed", e instanceof Error ? e.message : e);
+      return { ready: false, mutes: [] as Awaited<ReturnType<typeof s.myMutes>> };
+    }
+  });
+
+export const liftMyMute = createServerFn({ method: "POST" })
+  .middleware([requireAuth])
+  .inputValidator((input: unknown) => idSchema.strict().parse(input))
+  .handler(async ({ data }) => {
+    const s = await import("./questions.server");
+    return { ok: await s.liftMute(data.id) };
+  });
