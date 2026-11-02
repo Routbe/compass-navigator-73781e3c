@@ -135,7 +135,7 @@ export function QaInbox({ space, limit, compact = false }: {
                       <Share2 className="mr-2 h-4 w-4" />{t("pages.qa.inbox.share")}
                     </DropdownMenuItem>
                     {it.published && (
-                      <DropdownMenuItem onSelect={async () => { await unpublish({ data: { id: it.id } }).catch(() => null); void refresh(); }}>
+                      <DropdownMenuItem onSelect={async () => { try { await unpublish({ data: { id: it.id } }); } catch { toast.error(t("pages.qa.inbox.failed")); } void refresh(); }}>
                         <EyeOff className="mr-2 h-4 w-4" />{t("pages.qa.inbox.hide")}
                       </DropdownMenuItem>
                     )}
