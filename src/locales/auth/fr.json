@@ -226,5 +226,6 @@
   "connect.devTitle": "Connecter un agent IA",
   "connect.devIntro": "Les agents envoient leur utilisateur ici avec des paramètres OAuth 2.1 standard (PKCE). Après consentement, ils reçoivent un code qu'ils échangent contre un jeton de courte durée.",
   "connect.devDocs": "Documentation développeurs",
-  "connect.titleUnknown": "Connectez votre assistant IA à ROUT"
+  "connect.titleUnknown": "Connectez votre assistant IA à ROUT",
+  "auth.passkey.hint": "Face ID, Touch ID ou clé de sécurité — sans mot de passe."
 }

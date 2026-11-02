@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { InfomaniakMark } from "@/components/InfomaniakMark";
-import { ProtonMark } from "@/components/ProtonMark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -30,11 +29,10 @@ export const AUTH_PROVIDERS: AuthProvider[] = [
   { id: "bluesky", label: "Bluesky", kind: "bluesky" },
   { id: "oidc", label: "ROUT ID", kind: "generic" },
   { id: "infomaniak", label: "Infomaniak", kind: "generic" },
-  { id: "proton", label: "Proton", kind: "generic" },
 ];
 
 /** Providers whose availability depends on server keys (fediverse flows need none). */
-export const KEYED_PROVIDERS = new Set(["google", "github", "gitlab", "apple", "oidc", "infomaniak", "proton"]);
+export const KEYED_PROVIDERS = new Set(["google", "github", "gitlab", "apple", "oidc", "infomaniak"]);
 
 /** Official multi-colour Google "G" — required by Google Identity branding. */
 function GoogleColorMark({ className }: { className?: string }) {
@@ -53,7 +51,6 @@ const ICON_KEY: Record<string, string> = { oidc: "keycloak" };
 export function ProviderMark({ id, className = "h-[18px] w-[18px] shrink-0" }: { id: string; className?: string }) {
   if (id === "google") return <GoogleColorMark className={className} />;
   if (id === "infomaniak") return <InfomaniakMark className={className} />;
-  if (id === "proton") return <ProtonMark className={className} />;
   const icon = BRAND_ICONS[ICON_KEY[id] ?? id];
   if (!icon) return null;
   return (
