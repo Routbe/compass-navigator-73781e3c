@@ -7,7 +7,7 @@ import { z } from "zod";
  * browser puts the answer back in the textarea and the sender decides to send.
  * Same-site only, max 3 rewrites per minute (20 per hour) per IP.
  */
-const Body = z.object({ text: z.string().max(600) });
+const Body = z.object({ text: z.string().max(600), ui_language: z.enum(["nl", "en", "fr", "de"]).optional().catch(undefined) });
 
 export const Route = createFileRoute("/api_/ai/rewrite")({
   server: {
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/api_/ai/rewrite")({
         if (!minute.ok || !hour.ok) return tooManyRequests(Math.max(minute.retryAfter, hour.retryAfter));
 
         const { maskWritingStyle } = await import("@/lib/qa/style-mask.server");
-        const result = await maskWritingStyle(text);
+        const result = await maskWritingStyle(text, parsed.data.ui_language);
         if (!result.text) return Response.json({ error: "invalid" }, { status: 400, headers: noStore });
         return Response.json(result, { headers: noStore });
       },

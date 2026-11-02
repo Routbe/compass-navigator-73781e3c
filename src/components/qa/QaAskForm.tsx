@@ -42,7 +42,7 @@ export function QaAskForm({ handle, space, headline, theme, size = "page" }: {
   theme?: QaTheme;
   size?: "page" | "hub";
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const ask = useServerFn(askAnonymousQuestion);
   const access = useQuery({
     queryKey: ["qa-access", space, handle.toLowerCase()],
@@ -114,7 +114,7 @@ export function QaAskForm({ handle, space, headline, theme, size = "page" }: {
     setError(null);
     setPhase("rewriting");
     const before = body;
-    const out = await requestRewrite(draft);
+    const out = await requestRewrite(draft, locale);
     setPhase("idle");
     if (!out.ok) {
       setError(t(WAND_ERRORS[out.reason] ?? "pages.qa.ask.wandFailed"));
@@ -138,6 +138,8 @@ export function QaAskForm({ handle, space, headline, theme, size = "page" }: {
     setOriginal(null);
     setRewrite(null);
     setError(null);
+    setTipOpen(false);
+    setPhase("idle");
     textRef.current?.focus();
   };
 

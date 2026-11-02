@@ -3,12 +3,12 @@ export type RewriteOutcome =
   | { ok: true; text: string; via: "sovereign" | "local" }
   | { ok: false; reason: "too_many" | "invalid" | "failed" };
 
-export async function requestRewrite(text: string, signal?: AbortSignal): Promise<RewriteOutcome> {
+export async function requestRewrite(text: string, uiLanguage?: string, signal?: AbortSignal): Promise<RewriteOutcome> {
   try {
     const res = await fetch("/api/ai/rewrite", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, ui_language: uiLanguage }),
       credentials: "same-origin",
       signal,
     });
