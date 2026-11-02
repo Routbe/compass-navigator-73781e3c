@@ -149,3 +149,22 @@ export async function myQaOwners(userId: string): Promise<Partial<Record<QaSpace
   if (a && str(a["handle"])) out.alias = { handle: String(a["handle"]), displayName: str(a["display_name"]), avatarUrl: str(a["avatar_url"]) };
   return out;
 }
+
+/** One entry per mute the member pressed: when, and the message they muted. Never a sender. */
+export type QaMute = { id: string; mutedAt: string; excerpt: string | null; space: QaSpace | null };
+
+export async function myMutes(): Promise<QaMute[]> {
+  const rows = (await sql`select id, muted_at, excerpt, space from public.rout_qa_my_mutes()`) as Row[];
+  return rows.map((r) => ({
+    id: String(r["id"]),
+    mutedAt: iso(r["muted_at"]) ?? "",
+    excerpt: str(r["excerpt"]),
+    space: r["space"] === "alias" ? "alias" : r["space"] === "root" ? "root" : null,
+  }));
+}
+
+/** Lifts one mute; the muted message returns to the inbox. */
+export async function liftMute(id: string): Promise<boolean> {
+  const rows = (await sql`select public.rout_qa_unmute(${id}::uuid) as ok`) as Row[];
+  return rows[0]?.["ok"] === true;
+}

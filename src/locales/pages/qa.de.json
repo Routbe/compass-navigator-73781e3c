@@ -104,5 +104,12 @@
   "pages.qa.settings.shareCard": "Story-Karte erstellen",
   "pages.qa.settings.safety": "Stummgeschaltete Absender erfahren nie davon. Wer oft stummgeschaltet wird, verliert unsichtbar überall sein Senderecht.",
   "pages.qa.meta.title": "Schick @{{handle}} eine anonyme Nachricht",
-  "pages.qa.meta.description": "Schick eine 100 % anonyme Nachricht oder Frage. Kein Konto nötig; der Empfänger sieht nie, wer du bist."
+  "pages.qa.meta.description": "Schick eine 100 % anonyme Nachricht oder Frage. Kein Konto nötig; der Empfänger sieht nie, wer du bist.",
+  "pages.qa.mutes.title": "Stummgeschaltete Absender",
+  "pages.qa.mutes.help": "Jede Stummschaltung steht hier mit der Nachricht, die du stummgeschaltet hast. Wer sie geschickt hat, weiß niemand — auch du nicht. Nach dem Aufheben kommen neue Nachrichten wieder an und diese Nachricht kehrt in deinen Posteingang zurück.",
+  "pages.qa.mutes.empty": "Du hast niemanden stummgeschaltet.",
+  "pages.qa.mutes.since": "Stummgeschaltet am {{date}}",
+  "pages.qa.mutes.noMessage": "Nachricht nicht mehr verfügbar",
+  "pages.qa.mutes.lift": "Aufheben",
+  "pages.qa.mutes.lifted": "Stummschaltung aufgehoben. Neue Nachrichten dieses Absenders kommen wieder an."
 }

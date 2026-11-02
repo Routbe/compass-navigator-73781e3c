@@ -135,3 +135,84 @@ it("only the recipient can mute through a message id", async () => {
     expect((await trust(A))?.trust_score).toBe(100);
   } finally { await db.exec("rollback"); }
 }, 30_000);
+
+const myMutes = () =>
+  db.query<{ id: string; excerpt: string | null }>("select id, excerpt from public.rout_qa_my_mutes()").then((x) => x.rows);
+const unmute = (id: string) => db.query<{ ok: boolean }>("select public.rout_qa_unmute($1) as ok", [id]).then((x) => x.rows[0]?.ok);
+
+it("lifting a mute lets new messages through again and returns the muted message", async () => {
+  try {
+    await seed();
+    await as(A);
+    await submit("recipient", "eerste", KEY);
+    await as(R);
+    await mute((await inbox()).rows[0]!.id);
+    const list = await myMutes();
+    expect(list).toHaveLength(1);
+    expect(list[0]?.excerpt).toBe("eerste");
+    expect(await unmute(list[0]!.id)).toBe(true);
+    expect(await myMutes()).toEqual([]);
+    expect((await inbox()).rows.map((r) => r.body)).toEqual(["eerste"]);
+    await as(A);
+    await submit("recipient", "na opheffen", KEY);
+    await as(R);
+    expect((await inbox()).rows.map((r) => r.body).sort()).toEqual(["eerste", "na opheffen"]);
+  } finally { await db.exec("rollback"); }
+}, 30_000);
+
+it("muting, lifting and muting the same sender again costs trust only once", async () => {
+  try {
+    await seed();
+    await as(A);
+    await submit("recipient", "een", null);
+    await as(R);
+    const first = (await inbox()).rows[0]!.id;
+    await mute(first);
+    await unmute((await myMutes())[0]!.id);
+    await mute(first);
+    expect((await trust(A))?.trust_score).toBe(80);
+  } finally { await db.exec("rollback"); }
+}, 30_000);
+
+it("two mutes that hit the same sender stay two entries, and lifting one keeps the sender muted", async () => {
+  try {
+    await seed();
+    await as(A);
+    await submit("recipient", "een", KEY);
+    await submit("recipient", "twee", KEY);
+    await as(R);
+    const [one, two] = (await inbox()).rows;
+    await mute(one!.id);
+    await mute(two!.id);
+    const list = await myMutes();
+    expect(list).toHaveLength(2);
+    await unmute(list.find((m) => m.excerpt === "een")!.id);
+    await as(A);
+    await submit("recipient", "drie", KEY);
+    await as(R);
+    expect((await inbox()).rows.map((r) => r.body)).toEqual(["een"]);
+  } finally { await db.exec("rollback"); }
+}, 30_000);
+
+it("only the recipient can list or lift their mutes, and never through the tables", async () => {
+  try {
+    await seed();
+    await as(A);
+    await submit("recipient", "hoi", KEY);
+    await as(R);
+    await mute((await inbox()).rows[0]!.id);
+    const id = (await myMutes())[0]!.id;
+    await as(R2);
+    expect(await myMutes()).toEqual([]);
+    expect(await unmute(id)).toBe(false);
+    await db.exec("savepoint s");
+    await expect(db.query("select id from public.qa_mute_actions")).rejects.toThrow(/permission denied/);
+    await db.exec("rollback to savepoint s");
+    await expect(db.query("delete from public.shadow_mutes")).rejects.toThrow(/permission denied/);
+    await db.exec("rollback to savepoint s");
+    await expect(db.query("select recipient_id from public.qa_trust_charges")).rejects.toThrow(/permission denied/);
+    await db.exec("rollback to savepoint s");
+    await as(R);
+    expect(await myMutes()).toHaveLength(1);
+  } finally { await db.exec("rollback"); }
+}, 30_000);
