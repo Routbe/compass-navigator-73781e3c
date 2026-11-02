@@ -16,3 +16,17 @@ describe("in-app browser detection", () => {
     expect(systemBrowserUrl("https://rout.be/", IG)).toBeNull();
   });
 });
+
+import { shouldShowIosInstallHint } from "./in-app-browser";
+
+describe("iOS install hint", () => {
+  const safari = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
+  it("shows on iPhone Safari that is not installed yet", () => {
+    expect(shouldShowIosInstallHint(safari, false)).toBe(true);
+  });
+  it("never shows once installed, in Chrome on iOS or inside Instagram", () => {
+    expect(shouldShowIosInstallHint(safari, true)).toBe(false);
+    expect(shouldShowIosInstallHint(safari.replace("Version/18.0", "CriOS/130.0"), false)).toBe(false);
+    expect(shouldShowIosInstallHint(`${safari} Instagram 300.0`, false)).toBe(false);
+  });
+});
