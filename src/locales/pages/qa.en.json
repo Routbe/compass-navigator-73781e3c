@@ -117,5 +117,7 @@
   "pages.qa.mutes.since": "Muted on {{date}}",
   "pages.qa.mutes.noMessage": "Message no longer available",
   "pages.qa.mutes.lift": "Lift",
-  "pages.qa.mutes.lifted": "Mute lifted. New messages from this sender will arrive again."
+  "pages.qa.mutes.lifted": "Mute lifted. New messages from this sender will arrive again.",
+  "pages.qa.loadFailed": "Couldn't load.",
+  "pages.qa.retry": "Try again"
 }

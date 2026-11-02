@@ -117,5 +117,7 @@
   "pages.qa.mutes.since": "Masqué le {{date}}",
   "pages.qa.mutes.noMessage": "Message plus disponible",
   "pages.qa.mutes.lift": "Lever",
-  "pages.qa.mutes.lifted": "Masquage levé. Les nouveaux messages de cet expéditeur arriveront à nouveau."
+  "pages.qa.mutes.lifted": "Masquage levé. Les nouveaux messages de cet expéditeur arriveront à nouveau.",
+  "pages.qa.loadFailed": "Échec du chargement.",
+  "pages.qa.retry": "Réessayer"
 }

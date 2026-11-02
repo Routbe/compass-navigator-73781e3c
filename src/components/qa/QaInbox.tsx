@@ -95,6 +95,14 @@ export function QaInbox({ space, limit, compact = false }: {
   };
 
   if (q.isLoading) return <div className="h-24 animate-pulse rounded-2xl bg-muted" aria-hidden />;
+  if (q.isError && !q.data) {
+    return (
+      <div role="alert" className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+        <span>{t("pages.qa.loadFailed")}</span>
+        <button type="button" onClick={() => void q.refetch()} className="min-h-9 rounded-full border border-border px-3 font-medium text-foreground">{t("pages.qa.retry")}</button>
+      </div>
+    );
+  }
 
   const shareOwner = share ? owners[share.space] : undefined;
 

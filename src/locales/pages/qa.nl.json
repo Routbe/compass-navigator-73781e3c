@@ -117,5 +117,7 @@
   "pages.qa.mutes.since": "Gedempt op {{date}}",
   "pages.qa.mutes.noMessage": "Bericht niet meer beschikbaar",
   "pages.qa.mutes.lift": "Opheffen",
-  "pages.qa.mutes.lifted": "Demping opgeheven. Nieuwe berichten van deze afzender komen weer binnen."
+  "pages.qa.mutes.lifted": "Demping opgeheven. Nieuwe berichten van deze afzender komen weer binnen.",
+  "pages.qa.loadFailed": "Laden lukte niet.",
+  "pages.qa.retry": "Opnieuw proberen"
 }

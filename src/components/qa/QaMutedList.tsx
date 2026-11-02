@@ -49,6 +49,11 @@ export function QaMutedList() {
         <p className="text-xs text-muted-foreground">{t("pages.qa.mutes.help")}</p>
         {q.isLoading ? (
           <div className="h-12 animate-pulse rounded-lg bg-muted" aria-hidden />
+        ) : q.isError && !q.data ? (
+          <div role="alert" className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+            <span>{t("pages.qa.loadFailed")}</span>
+            <Button size="sm" variant="outline" onClick={() => void q.refetch()}>{t("pages.qa.retry")}</Button>
+          </div>
         ) : mutes.length === 0 ? (
           <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">{t("pages.qa.mutes.empty")}</p>
         ) : (
