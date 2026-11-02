@@ -543,6 +543,14 @@ export function CommandCenter() {
             </Slot>
           ) : null}
 
+          {c?.openQuestions ? (
+            <Slot id="qa" className="sm:col-span-2" {...slot("qa")}>
+              <Widget icon={MessageCircleQuestion} eyebrow="Anonieme Inbox" title={plural(c.openQuestions, "open bericht", "open berichten")} hint="Beantwoorden, delen als story of de afzender onzichtbaar dempen.">
+                <QaInbox space={null} limit={3} compact />
+              </Widget>
+            </Slot>
+          ) : null}
+
           <Slot id="hub" {...slot("hub")}>
             <Widget to="/studio" icon={LayoutTemplate} eyebrow="Profiel Hub" title="Hub beheren" hint="Blokken, thema en zichtbaarheid in de Studio." />
           </Slot>

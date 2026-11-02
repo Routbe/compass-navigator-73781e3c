@@ -56,7 +56,7 @@ export const getCommandCenter = createServerFn({ method: "GET" })
         safe(async () => count((await sql`select count(*)::int as n from public.oauth_consents where user_id = ${uid} and revoked_at is null`) as Row[]), null),
         safe(async () => count((await sql`select count(*)::int as n from public.identity_relays where user_id = ${uid} and status = 'active'`) as Row[]), null),
         safe(async () => count((await sql`select count(*)::int as n from public.notifications where user_id = ${uid} and read_at is null`) as Row[]), null),
-        safe(async () => count((await sql`select count(*)::int as n from public.profile_questions where owner_id = ${uid} and answer is null`) as Row[]), null),
+        safe(async () => count((await sql`select count(*)::int as n from public.profile_questions where owner_id = ${uid} and answer is null and not is_quarantined`) as Row[]), null),
         safe(async () => count((await sql`select count(*)::int as n from public.guestbook_entries where owner_id = ${uid} and created_at > now() - interval '30 days'`) as Row[]), null),
         safe(async () => count((await sql`select count(*)::int as n from public.bookings where host_user_id = ${uid} and start_utc > now() and status not in ('cancelled', 'canceled', 'declined', 'expired', 'held')`) as Row[]), null),
         safe(async () => {
@@ -64,7 +64,7 @@ export const getCommandCenter = createServerFn({ method: "GET" })
           return r[0] ? iso(r[0]["start_utc"]) : null;
         }, null),
         safe(async () => (await sql`select id, title, body, created_at from public.notifications where user_id = ${uid} order by created_at desc limit 6`) as Row[], []),
-        safe(async () => (await sql`select id, body, created_at from public.profile_questions where owner_id = ${uid} order by created_at desc limit 6`) as Row[], []),
+        safe(async () => (await sql`select id, body, created_at from public.profile_questions where owner_id = ${uid} and not is_quarantined order by created_at desc limit 6`) as Row[], []),
         safe(async () => (await sql`select id, body, created_at from public.guestbook_entries where owner_id = ${uid} order by created_at desc limit 6`) as Row[], []),
         safe(async () => (await sql`select l.id, coalesce(c.name, l.client_id) as app, l.disclosed_at from public.identity_disclosure_logs l
             left join public.oauth_clients c on c.client_id = l.client_id
