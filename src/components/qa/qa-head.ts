@@ -3,8 +3,12 @@ import type { QaSpace } from "./useQaPublic";
 
 /** Head tags for the /ask pages (member page: no ROUT knowledge graph). */
 export function qaAskHead(handle: string, space: QaSpace) {
-  const title = i18next.t("pages.qa.meta.title", { handle });
-  const description = i18next.t("pages.qa.meta.description");
+  const tr = (key: string, fallback: string, params?: Record<string, string>) => {
+    const out = i18next.isInitialized ? i18next.t(key, params ?? {}) : key;
+    return out && out !== key ? out : fallback;
+  };
+  const title = tr("pages.qa.meta.title", `Stuur @${handle} een anoniem bericht`, { handle });
+  const description = tr("pages.qa.meta.description", "Stuur een 100% anoniem bericht of vraag. Geen account nodig, de ontvanger ziet nooit wie je bent.");
   const path = `${space === "alias" ? "/u/" : "/"}${handle}/ask`;
   return {
     meta: [

@@ -66,6 +66,7 @@ import { Route as VcardQrRouteImport } from './routes/vcard-qr'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as WifiQrRouteImport } from './routes/wifi-qr'
 import { Route as UsernameSlugRouteImport } from './routes/$username_.$slug'
+import { Route as UsernameAskRouteImport } from './routes/$username_.ask'
 import { Route as UsernameBookingRouteImport } from './routes/$username_.booking'
 import { Route as UsernameDonateRouteImport } from './routes/$username_.donate'
 import { Route as UsernameLiveRouteImport } from './routes/$username_.live'
@@ -283,6 +284,7 @@ import { Route as SupportWorkspaceMultipleWorkspacesRouteImport } from './routes
 import { Route as SupportWorkspaceTeamRolesRouteImport } from './routes/support.workspace.team-roles'
 import { Route as UUsernameSlugRouteImport } from './routes/u.$username_.$slug'
 import { Route as UUsernameAgendaRouteImport } from './routes/u.$username_.agenda'
+import { Route as UUsernameAskRouteImport } from './routes/u.$username_.ask'
 import { Route as UUsernameDonateRouteImport } from './routes/u.$username_.donate'
 import { Route as UUsernameFeedbackRouteImport } from './routes/u.$username_.feedback'
 import { Route as UUsernameLiveRouteImport } from './routes/u.$username_.live'
@@ -647,6 +649,11 @@ const WifiQrRoute = WifiQrRouteImport.update({
 const UsernameSlugRoute = UsernameSlugRouteImport.update({
   id: '/$username_/$slug',
   path: '/$username/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsernameAskRoute = UsernameAskRouteImport.update({
+  id: '/$username_/ask',
+  path: '/$username/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsernameBookingRoute = UsernameBookingRouteImport.update({
@@ -1786,6 +1793,11 @@ const UUsernameAgendaRoute = UUsernameAgendaRouteImport.update({
   path: '/u/$username/agenda',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UUsernameAskRoute = UUsernameAskRouteImport.update({
+  id: '/u/$username_/ask',
+  path: '/u/$username/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameDonateRoute = UUsernameDonateRouteImport.update({
   id: '/u/$username_/donate',
   path: '/u/$username/donate',
@@ -2303,6 +2315,7 @@ export interface FileRoutesByFullPath {
   '/verify': typeof VerifyRoute
   '/wifi-qr': typeof WifiQrRoute
   '/$username/$slug': typeof UsernameSlugRoute
+  '/$username/ask': typeof UsernameAskRoute
   '/$username/booking': typeof UsernameBookingRoute
   '/$username/donate': typeof UsernameDonateRoute
   '/$username/live': typeof UsernameLiveRoute
@@ -2516,6 +2529,7 @@ export interface FileRoutesByFullPath {
   '/support/workspace/team-roles': typeof SupportWorkspaceTeamRolesRoute
   '/u/$username/$slug': typeof UUsernameSlugRoute
   '/u/$username/agenda': typeof UUsernameAgendaRoute
+  '/u/$username/ask': typeof UUsernameAskRoute
   '/u/$username/donate': typeof UUsernameDonateRoute
   '/u/$username/feedback': typeof UUsernameFeedbackRoute
   '/u/$username/live': typeof UUsernameLiveRoute
@@ -2647,6 +2661,7 @@ export interface FileRoutesByTo {
   '/verify': typeof VerifyRoute
   '/wifi-qr': typeof WifiQrRoute
   '/$username/$slug': typeof UsernameSlugRoute
+  '/$username/ask': typeof UsernameAskRoute
   '/$username/booking': typeof UsernameBookingRoute
   '/$username/donate': typeof UsernameDonateRoute
   '/$username/live': typeof UsernameLiveRoute
@@ -2856,6 +2871,7 @@ export interface FileRoutesByTo {
   '/support/workspace/team-roles': typeof SupportWorkspaceTeamRolesRoute
   '/u/$username/$slug': typeof UUsernameSlugRoute
   '/u/$username/agenda': typeof UUsernameAgendaRoute
+  '/u/$username/ask': typeof UUsernameAskRoute
   '/u/$username/donate': typeof UUsernameDonateRoute
   '/u/$username/feedback': typeof UUsernameFeedbackRoute
   '/u/$username/live': typeof UUsernameLiveRoute
@@ -3000,6 +3016,7 @@ export interface FileRoutesById {
   '/verify': typeof VerifyRoute
   '/wifi-qr': typeof WifiQrRoute
   '/$username_/$slug': typeof UsernameSlugRoute
+  '/$username_/ask': typeof UsernameAskRoute
   '/$username_/booking': typeof UsernameBookingRoute
   '/$username_/donate': typeof UsernameDonateRoute
   '/$username_/live': typeof UsernameLiveRoute
@@ -3213,6 +3230,7 @@ export interface FileRoutesById {
   '/support/workspace/team-roles': typeof SupportWorkspaceTeamRolesRoute
   '/u/$username_/$slug': typeof UUsernameSlugRoute
   '/u/$username_/agenda': typeof UUsernameAgendaRoute
+  '/u/$username_/ask': typeof UUsernameAskRoute
   '/u/$username_/donate': typeof UUsernameDonateRoute
   '/u/$username_/feedback': typeof UUsernameFeedbackRoute
   '/u/$username_/live': typeof UUsernameLiveRoute
@@ -3358,6 +3376,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/wifi-qr'
     | '/$username/$slug'
+    | '/$username/ask'
     | '/$username/booking'
     | '/$username/donate'
     | '/$username/live'
@@ -3571,6 +3590,7 @@ export interface FileRouteTypes {
     | '/support/workspace/team-roles'
     | '/u/$username/$slug'
     | '/u/$username/agenda'
+    | '/u/$username/ask'
     | '/u/$username/donate'
     | '/u/$username/feedback'
     | '/u/$username/live'
@@ -3702,6 +3722,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/wifi-qr'
     | '/$username/$slug'
+    | '/$username/ask'
     | '/$username/booking'
     | '/$username/donate'
     | '/$username/live'
@@ -3911,6 +3932,7 @@ export interface FileRouteTypes {
     | '/support/workspace/team-roles'
     | '/u/$username/$slug'
     | '/u/$username/agenda'
+    | '/u/$username/ask'
     | '/u/$username/donate'
     | '/u/$username/feedback'
     | '/u/$username/live'
@@ -4054,6 +4076,7 @@ export interface FileRouteTypes {
     | '/verify'
     | '/wifi-qr'
     | '/$username_/$slug'
+    | '/$username_/ask'
     | '/$username_/booking'
     | '/$username_/donate'
     | '/$username_/live'
@@ -4267,6 +4290,7 @@ export interface FileRouteTypes {
     | '/support/workspace/team-roles'
     | '/u/$username_/$slug'
     | '/u/$username_/agenda'
+    | '/u/$username_/ask'
     | '/u/$username_/donate'
     | '/u/$username_/feedback'
     | '/u/$username_/live'
@@ -4412,6 +4436,7 @@ export interface RootRouteChildren {
   VerifyRoute: typeof VerifyRoute
   WifiQrRoute: typeof WifiQrRoute
   UsernameSlugRoute: typeof UsernameSlugRoute
+  UsernameAskRoute: typeof UsernameAskRoute
   UsernameBookingRoute: typeof UsernameBookingRoute
   UsernameDonateRoute: typeof UsernameDonateRoute
   UsernameLiveRoute: typeof UsernameLiveRoute
@@ -4490,6 +4515,7 @@ export interface RootRouteChildren {
   RUAliasRoute: typeof RUAliasRoute
   UUsernameSlugRoute: typeof UUsernameSlugRoute
   UUsernameAgendaRoute: typeof UUsernameAgendaRoute
+  UUsernameAskRoute: typeof UUsernameAskRoute
   UUsernameDonateRoute: typeof UUsernameDonateRoute
   UUsernameFeedbackRoute: typeof UUsernameFeedbackRoute
   UUsernameLiveRoute: typeof UUsernameLiveRoute
@@ -4945,6 +4971,13 @@ declare module '@tanstack/react-router' {
       path: '/$username/$slug'
       fullPath: '/$username/$slug'
       preLoaderRoute: typeof UsernameSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$username_/ask': {
+      id: '/$username_/ask'
+      path: '/$username/ask'
+      fullPath: '/$username/ask'
+      preLoaderRoute: typeof UsernameAskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$username_/booking': {
@@ -6466,6 +6499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UUsernameAgendaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$username_/ask': {
+      id: '/u/$username_/ask'
+      path: '/u/$username/ask'
+      fullPath: '/u/$username/ask'
+      preLoaderRoute: typeof UUsernameAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username_/donate': {
       id: '/u/$username_/donate'
       path: '/u/$username/donate'
@@ -7649,6 +7689,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyRoute: VerifyRoute,
   WifiQrRoute: WifiQrRoute,
   UsernameSlugRoute: UsernameSlugRoute,
+  UsernameAskRoute: UsernameAskRoute,
   UsernameBookingRoute: UsernameBookingRoute,
   UsernameDonateRoute: UsernameDonateRoute,
   UsernameLiveRoute: UsernameLiveRoute,
@@ -7727,6 +7768,7 @@ const rootRouteChildren: RootRouteChildren = {
   RUAliasRoute: RUAliasRoute,
   UUsernameSlugRoute: UUsernameSlugRoute,
   UUsernameAgendaRoute: UUsernameAgendaRoute,
+  UUsernameAskRoute: UUsernameAskRoute,
   UUsernameDonateRoute: UUsernameDonateRoute,
   UUsernameFeedbackRoute: UUsernameFeedbackRoute,
   UUsernameLiveRoute: UUsernameLiveRoute,
