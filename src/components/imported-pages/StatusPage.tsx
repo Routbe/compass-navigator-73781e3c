@@ -62,7 +62,7 @@ export default function StatusPage() {
     let cancelled = false;
     const load = async () => {
       try {
-        const res = await fetch("/api_/public/health", { cache: "no-store" });
+        const res = await fetch("/api/public/health", { cache: "no-store" });
         const json = (await res.json()) as Health;
         if (cancelled) return;
         setHealth(json);
