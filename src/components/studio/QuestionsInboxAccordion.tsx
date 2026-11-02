@@ -8,9 +8,10 @@ import { QaInbox } from "@/components/qa/QaInbox";
 import { QaShareDialog } from "@/components/qa/QaShareDialog";
 import { qaPaths, type QaSpace } from "@/components/qa/useQaPublic";
 import { cn } from "@/lib/utils";
+import type { ProfileDisplayPrefs } from "@/lib/profile-display";
 import { StudioSectionIcon } from "./StudioSectionIcon";
 
-export type QaPrefs = { questionsEnabled: boolean; qaPrompt: string; qaPromptCustom: string | null; qaOnHub: boolean; qaPage: boolean };
+export type QaPrefs = Pick<ProfileDisplayPrefs, "questionsEnabled" | "qaPrompt" | "qaPromptCustom" | "qaOnHub" | "qaPage">;
 
 /**
  * Studio: anonymous Q&A for one canvas — accept on/off, hub block and/or a
