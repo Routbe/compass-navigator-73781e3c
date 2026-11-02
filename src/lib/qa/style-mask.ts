@@ -14,7 +14,7 @@ export const STYLE_MASK_SYSTEM_PROMPT =
 const SHORTHAND: Record<string, string> = {
   wss: "waarschijnlijk", mss: "misschien", ff: "even", ofz: "of zo", idk: "ik weet het niet", iig: "in ieder geval",
   btw: "trouwens", wrm: "waarom", wnr: "wanneer", nie: "niet", ni: "niet", da: "dat", kweet: "ik weet", kheb: "ik heb",
-  kben: "ik ben", kga: "ik ga", tis: "het is", is't: "is het", u: "je", jij: "je", jou: "je", r: "are",
+  kben: "ik ben", kga: "ik ga", tis: "het is", "is't": "is het", u: "je",
   pls: "alsjeblieft", plz: "alsjeblieft", aub: "alsjeblieft", thx: "bedankt", ty: "bedankt", tmrw: "morgen",
 };
 /** Fillers carry style but no meaning. */
