@@ -104,5 +104,12 @@
   "pages.qa.settings.shareCard": "Créer une carte story",
   "pages.qa.settings.safety": "Les expéditeurs masqués ne savent jamais qu'ils le sont. Qui est souvent masqué perd invisiblement partout son droit d'envoyer.",
   "pages.qa.meta.title": "Envoie un message anonyme à @{{handle}}",
-  "pages.qa.meta.description": "Envoie un message ou une question 100 % anonyme. Sans compte ; le destinataire ne voit jamais qui tu es."
+  "pages.qa.meta.description": "Envoie un message ou une question 100 % anonyme. Sans compte ; le destinataire ne voit jamais qui tu es.",
+  "pages.qa.mutes.title": "Expéditeurs masqués",
+  "pages.qa.mutes.help": "Chaque masquage est listé avec le message que tu as masqué. Personne ne sait qui l'a envoyé — pas même toi. Après levée, les nouveaux messages arrivent à nouveau et ce message revient dans ta boîte.",
+  "pages.qa.mutes.empty": "Tu n'as masqué personne.",
+  "pages.qa.mutes.since": "Masqué le {{date}}",
+  "pages.qa.mutes.noMessage": "Message plus disponible",
+  "pages.qa.mutes.lift": "Lever",
+  "pages.qa.mutes.lifted": "Masquage levé. Les nouveaux messages de cet expéditeur arriveront à nouveau."
 }

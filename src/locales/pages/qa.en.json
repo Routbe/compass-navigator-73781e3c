@@ -104,5 +104,12 @@
   "pages.qa.settings.shareCard": "Make story card",
   "pages.qa.settings.safety": "Muted senders never find out they're muted. Anyone muted often invisibly loses their right to send everywhere.",
   "pages.qa.meta.title": "Send @{{handle}} an anonymous message",
-  "pages.qa.meta.description": "Send a 100% anonymous message or question. No account needed; the recipient never sees who you are."
+  "pages.qa.meta.description": "Send a 100% anonymous message or question. No account needed; the recipient never sees who you are.",
+  "pages.qa.mutes.title": "Muted senders",
+  "pages.qa.mutes.help": "Each mute is listed with the message you muted. Nobody knows who sent it — not even you. After lifting, new messages arrive again and this message returns to your inbox.",
+  "pages.qa.mutes.empty": "You haven't muted anyone.",
+  "pages.qa.mutes.since": "Muted on {{date}}",
+  "pages.qa.mutes.noMessage": "Message no longer available",
+  "pages.qa.mutes.lift": "Lift",
+  "pages.qa.mutes.lifted": "Mute lifted. New messages from this sender will arrive again."
 }

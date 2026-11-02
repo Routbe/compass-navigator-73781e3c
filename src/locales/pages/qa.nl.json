@@ -104,5 +104,12 @@
   "pages.qa.settings.shareCard": "Story-kaart maken",
   "pages.qa.settings.safety": "Gedempte afzenders merken nooit dat ze gedempt zijn. Wie vaak gedempt wordt, verliest onzichtbaar overal zijn verzendrechten.",
   "pages.qa.meta.title": "Stuur @{{handle}} een anoniem bericht",
-  "pages.qa.meta.description": "Stuur een 100% anoniem bericht of vraag. Geen account nodig, de ontvanger ziet nooit wie je bent."
+  "pages.qa.meta.description": "Stuur een 100% anoniem bericht of vraag. Geen account nodig, de ontvanger ziet nooit wie je bent.",
+  "pages.qa.mutes.title": "Gedempte afzenders",
+  "pages.qa.mutes.help": "Elke demping staat hier met het bericht dat je dempte. Wie de afzender is, weet niemand — ook jij niet. Na opheffen komen nieuwe berichten weer binnen en keert dit bericht terug in je inbox.",
+  "pages.qa.mutes.empty": "Je hebt niemand gedempt.",
+  "pages.qa.mutes.since": "Gedempt op {{date}}",
+  "pages.qa.mutes.noMessage": "Bericht niet meer beschikbaar",
+  "pages.qa.mutes.lift": "Opheffen",
+  "pages.qa.mutes.lifted": "Demping opgeheven. Nieuwe berichten van deze afzender komen weer binnen."
 }

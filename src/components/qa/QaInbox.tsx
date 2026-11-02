@@ -84,6 +84,7 @@ export function QaInbox({ space, limit, compact = false }: {
       if (!ok) throw new Error("mute_failed");
       toast.success(t("pages.qa.inbox.muted"), { duration: 7000 });
       void refresh();
+      void qc.invalidateQueries({ queryKey: ["my-qa-mutes"] });
     } catch {
       toast.error(t("pages.qa.inbox.failed"));
     }
