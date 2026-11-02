@@ -1339,17 +1339,17 @@ select:focus-visible {
   background: linear-gradient(
     100deg,
     transparent 20%,
-    color-mix(in oklab, var(--story-ring) 22%, transparent) 40%,
-    color-mix(in oklab, var(--story-ring-2) 30%, transparent) 50%,
-    color-mix(in oklab, var(--story-ring) 22%, transparent) 60%,
+    hsl(var(--story-ring) / 0.22) 40%,
+    hsl(var(--story-ring-2) / 0.3) 50%,
+    hsl(var(--story-ring) / 0.22) 60%,
     transparent 80%
   );
   background-size: 250% 100%;
   animation: qa-shimmer 1.4s ease-in-out infinite;
 }
 @keyframes qa-wand-busy {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--story-ring) 55%, transparent); }
-  50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--story-ring) 0%, transparent); }
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--story-ring) / 0.55); }
+  50% { box-shadow: 0 0 0 8px hsl(var(--story-ring) / 0); }
 }
 .qa-wand-busy {
   animation: qa-wand-busy 1.2s ease-out infinite;
