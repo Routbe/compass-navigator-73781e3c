@@ -109,12 +109,12 @@ const STOPWORDS: Record<RewriteUiLanguage, string[]> = {
 /** Best-effort language guess for the local fallback; ties go to the UI language. */
 export function guessLanguage(text: string, uiLanguage?: string | null): RewriteUiLanguage {
   const ui: RewriteUiLanguage = isRewriteUiLanguage(uiLanguage) ? uiLanguage : "nl";
-  const words = text.toLowerCase().match(/[\p{L}']+/gu) ?? [];
-  let best = ui;
+  const words: string[] = text.toLowerCase().match(/[\p{L}']+/gu) ?? [];
+  let best: RewriteUiLanguage = ui;
   let bestScore = 0;
   for (const lang of REWRITE_UI_LANGUAGES) {
     const set = STOPWORDS[lang];
-    const score = words.reduce((n, w) => n + (set.includes(w) ? 1 : 0), 0);
+    const score = words.filter((w) => set.includes(w)).length;
     if (score > bestScore || (score === bestScore && score > 0 && lang === ui)) {
       best = lang;
       bestScore = score;
