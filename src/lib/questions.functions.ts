@@ -26,8 +26,7 @@ export const getQuestionAccess = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => questionAccess(data.handle, data.space, context.userId));
 
 async function questionAccess(h: string, sp: "root" | "alias", userId: string | null) {
-  const { canSendQuestion } = await import("./minor-safety");
-  const { isQaLevel } = await import("./minor-safety");
+  const { canSendQuestion, isQaLevel } = await import("./minor-safety");
   const s = await import("./questions.server");
   const qa = await s.publicQa(h, sp).catch(() => null);
   const raw = qa?.qaLevel;
