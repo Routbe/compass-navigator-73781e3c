@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ExternalLink, ShieldCheck, Sparkles } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ export function QuestionsInboxAccordion({ space, handle, displayName, avatarUrl,
   const headline = promptHeadline(prefs.qaPrompt, prefs.qaPromptCustom, t);
   const paths = handle ? qaPaths(handle, space) : null;
   const keys: QaPromptKey[] = [...QA_PROMPT_KEYS, "custom"];
+  const shareTarget = useMemo(() => (shareOpen ? { kind: "prompt" as const, prompt: headline } : null), [shareOpen, headline]);
 
   const row = (label: string, help: string, checked: boolean, onChange: (v: boolean) => void, disabled = false) => (
     <label className={cn("flex items-center justify-between gap-3 rounded-xl border border-border p-3 text-sm", disabled && "opacity-60")}>
@@ -113,7 +114,7 @@ export function QuestionsInboxAccordion({ space, handle, displayName, avatarUrl,
         <QaShareDialog
           open={shareOpen}
           onOpenChange={setShareOpen}
-          target={shareOpen ? { kind: "prompt", prompt: headline } : null}
+          target={shareTarget}
           handle={handle}
           space={space}
           displayName={displayName}
