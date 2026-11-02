@@ -16,6 +16,7 @@ import { SocialFeedCard } from "@/components/profile/SocialFeedCard";
 import { VerifiedAccountCheck } from "@/components/profile/VerifiedAccountCheck";
 import { ProfileIntegrations } from "@/components/profile/ProfileIntegrations";
 import { ProfileGuestbook } from "@/components/profile/ProfileGuestbook";
+import { QaStoryRing } from "@/components/qa/QaStoryRing";
 import { ProfileQuestions } from "@/components/profile/ProfileQuestions";
 import { TipJarButton } from "@/components/profile/TipJarButton";
 import { ProfilePageTabs } from "@/components/profile/ProfilePageTabs";
@@ -209,6 +210,8 @@ export function ProfileView({
   const banner = bannerStyleOf(prefs, t);
   const nameStyle = nameAccentStyle(prefs.nameAccent, t);
   const avatarShape = avatarShapeStyle(prefs.avatarShape);
+  /** Anonymous Q&A lives on personal canvases only (never on a workspace page). */
+  const qaSpace: "root" | "alias" | null = publicPath?.startsWith("/w/") ? null : free ? "alias" : "root";
 
   // Het blauwe vinkje hoort uitsluitend bij het geverifieerde account op de
   // schone namespace (`rout.be/<handle>`). De aliasruimte (`rout.be/u/…`) van
@@ -393,6 +396,7 @@ export function ProfileView({
           indicator={prefs.presenceIndicator}
           emoji={prefs.presenceEmoji}
         >
+          <QaStoryRing handle={qaSpace ? profile.username ?? null : null} space={qaSpace ?? "root"} displayName={profile.display_name ?? null} avatarUrl={profile.avatar_url ?? null}>
           {avatarSrc ? (
             <img
               src={avatarSrc}
@@ -415,6 +419,7 @@ export function ProfileView({
               {initialsFrom(profile.display_name || profile.username)}
             </div>
           )}
+          </QaStoryRing>
         </AvatarFrameWrapper>
         <ProfileStatus handle={profile.username ?? null} prefs={prefs} background={t.card} />
         </div>
@@ -475,7 +480,7 @@ export function ProfileView({
         <ProfilePassport handle={profile.username} theme={t} />
         {profile.username && <ConnectedApps handle={profile.username} />}
         {profile.username && prefs.guestbookEnabled && usesSectionFallback(profile.blocks, "widget:guestbook") && <ProfileGuestbook handle={profile.username} theme={t} />}
-        {profile.username && prefs.questionsEnabled && <ProfileQuestions handle={profile.username} theme={t} />}
+        {profile.username && qaSpace && prefs.questionsEnabled && prefs.qaOnHub && <ProfileQuestions handle={profile.username} space={qaSpace} theme={t} />}
         {profile.username && !profile.blocks.some(b => b.kind === "event_list") && <ProfileEventList handle={profile.username} space={free ? "alias" : "root"} style={styleFor("event_list")} />}
         {profile.username && !profile.blocks.some(b => b.kind === "feedback") && <ProfileFeedback handle={profile.username} space={free ? "alias" : "root"} style={styleFor("feedback")} />}
 
