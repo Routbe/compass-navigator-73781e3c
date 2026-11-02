@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { activeStories, hasUnseen, seenStorageKey } from "@/lib/qa/story";
 import { useQaPublic, type QaSpace } from "./useQaPublic";
@@ -32,17 +32,17 @@ export function QaStoryRing({ handle, space, displayName, avatarUrl, children }:
     try { setSeenAt(window.localStorage.getItem(seenStorageKey(space, handle))); } catch { /* storage blocked */ }
   }, [handle, space]);
 
+  const close = useCallback(() => {
+    setOpen(false);
+    const latest = stories[stories.length - 1]?.answeredAt ?? null;
+    if (!latest || !handle) return;
+    setSeenAt(latest);
+    try { window.localStorage.setItem(seenStorageKey(space, handle), latest); } catch { /* storage blocked */ }
+  }, [stories, handle, space]);
+
   if (!handle || stories.length === 0) return <>{children}</>;
   const unseen = hasUnseen(stories, seenAt);
   const name = displayName || `@${handle}`;
-
-  const close = () => {
-    setOpen(false);
-    const latest = stories[stories.length - 1]?.answeredAt ?? null;
-    if (!latest) return;
-    setSeenAt(latest);
-    try { window.localStorage.setItem(seenStorageKey(space, handle), latest); } catch { /* storage blocked */ }
-  };
 
   return (
     <>

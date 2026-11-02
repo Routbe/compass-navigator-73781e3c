@@ -33,14 +33,17 @@ export function QaStoryViewer({ stories, handle, space, displayName, avatarUrl, 
   const avatar = profileImageSrc(avatarUrl);
   const name = displayName || `@${handle}`;
 
-  const next = useCallback(() => setIndex((i) => {
-    if (i + 1 >= stories.length) { onClose(); return i; }
-    return i + 1;
-  }), [stories.length, onClose]);
+  const next = useCallback(() => {
+    if (index + 1 >= stories.length) onClose();
+    else setIndex(index + 1);
+  }, [index, stories.length, onClose]);
   const prev = useCallback(() => setIndex((i) => Math.max(0, i - 1)), []);
 
   useEffect(() => {
     closeRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
